@@ -4,7 +4,7 @@ set -euo pipefail
 # agent-skills — install agent skills into any AI coding harness
 #
 # Remote one-liner:
-#   curl -sL https://raw.githubusercontent.com/ujjalcal/curious-stack/main/scripts/install.sh | bash -s -- <skill-name>
+#   curl -sL https://raw.githubusercontent.com/ujjalcal/agent-skills/main/scripts/install.sh | bash -s -- <skill-name>
 #
 # Local usage:
 #   ./scripts/install.sh <skill-name>              Install a skill
@@ -16,8 +16,8 @@ set -euo pipefail
 #   ./scripts/install.sh --uninstall <skill-name>  Remove an installed skill
 #   ./scripts/install.sh --harness <name>          Target harness (default: auto-detect)
 
-REGISTRY_URL="https://raw.githubusercontent.com/ujjalcal/curious-stack/main/registry.json"
-REGISTRY_REPO="https://github.com/ujjalcal/curious-stack.git"
+REGISTRY_URL="https://raw.githubusercontent.com/ujjalcal/agent-skills/main/registry.json"
+REGISTRY_REPO="https://github.com/ujjalcal/agent-skills.git"
 
 # Defaults
 HARNESS=""
@@ -36,7 +36,7 @@ ok()    { echo -e "${GREEN}[ok]${NC} $*"; }
 warn()  { echo -e "${YELLOW}[warn]${NC} $*"; }
 err()   { echo -e "${RED}[error]${NC} $*" >&2; }
 
-# ── Harness Detection ─────────────────────────────────────────────────
+# ── Harness Detection ─────────────────────────────────────────────────────
 
 detect_harness() {
   if [ -n "$HARNESS" ]; then
@@ -82,7 +82,7 @@ get_install_dir() {
   esac
 }
 
-# ── Registry & Repo ───────────────────────────────────────────────────
+# ── Registry & Repo ─────────────────────────────────────────────────────
 
 fetch_registry() {
   if [ -f "$SKILLS_CACHE/registry.json" ]; then
@@ -141,10 +141,10 @@ for s in data['skills']:
     print(f\"    {s['description']}\")
     print(f\"    Tags: {tags}  |  Harnesses: {harnesses}\")
     print()
-" 2>/dev/null || echo "$registry" | grep -o '"name":"[^"]*"' | sed 's/"name":"//;s/"//'
+" 2>/dev/null || echo "$registry" | grep -o '"name":"[^"]*"' | sed 's/"name":"//;s/"//' 
 
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo -e "Install: ${GREEN}curl -sL https://raw.githubusercontent.com/ujjalcal/curious-stack/main/scripts/install.sh | bash -s -- <skill-name>${NC}"
+  echo -e "Install: ${GREEN}curl -sL https://raw.githubusercontent.com/ujjalcal/agent-skills/main/scripts/install.sh | bash -s -- <skill-name>${NC}"
 }
 
 search_skills() {
@@ -263,7 +263,6 @@ upgrade_skills() {
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo ""
 
-  # 1. Check for new skills in registry that aren't installed
   local new_skills
   new_skills=$(echo "$registry" | python3 -c "
 import json, sys, os
@@ -290,7 +289,6 @@ print(s['description'] if s else '')
     echo ""
   fi
 
-  # 2. Check installed skills for version updates
   if [ ! -d "$install_dir" ]; then
     if [ -z "$new_skills" ]; then
       info "No skills installed and no new skills available."
@@ -307,13 +305,11 @@ print(s['description'] if s else '')
     local name
     name=$(basename "$skill_dir")
 
-    # Get installed version
     local installed_ver="0.0.0"
     if [ -f "$skill_dir/manifest.json" ]; then
       installed_ver=$(python3 -c "import json; print(json.load(open('$skill_dir/manifest.json')).get('version', '0.0.0'))" 2>/dev/null || echo "0.0.0")
     fi
 
-    # Get registry version
     local registry_ver
     registry_ver=$(echo "$registry" | python3 -c "
 import json, sys
@@ -327,14 +323,12 @@ print(s['version'] if s else 'NOT_FOUND')
       continue
     fi
 
-    # Compare versions
     local needs_update
     needs_update=$(python3 -c "
 from packaging.version import Version
 try:
     print('yes' if Version('$registry_ver') > Version('$installed_ver') else 'no')
 except:
-    # Fallback: simple string comparison
     print('yes' if '$registry_ver' != '$installed_ver' else 'no')
 " 2>/dev/null || echo "$([ "$registry_ver" != "$installed_ver" ] && echo yes || echo no)")
 
@@ -372,7 +366,6 @@ install_skill() {
   info "Detected harness: $harness"
   info "Install directory: $install_dir/"
 
-  # Get skill metadata from registry
   local registry
   registry=$(fetch_registry)
 
@@ -394,10 +387,8 @@ else:
     exit 1
   fi
 
-  # Clone/update repo
   ensure_repo
 
-  # Copy skill files
   local src="$SKILLS_CACHE/repo/$skill_path"
   local dest="$install_dir/$skill_name"
 
@@ -409,22 +400,10 @@ else:
   mkdir -p "$dest"
   cp -r "$src"/* "$dest"/
 
-  # Run post-install hook if present
-  if [ -f "$dest/manifest.json" ]; then
-    local post_install
-    post_install=$(python3 -c "
-import json
-with open('$dest/manifest.json') as f:
-    m = json.load(f)
-print(m.get('hooks', {}).get('post-install', ''))
-" 2>/dev/null || echo "")
-    if [ -n "$post_install" ]; then
-      info "Running post-install hook..."
-      (cd "$dest" && bash -c "$post_install")
-    fi
-  fi
+  # Post-install hooks are not executed for security reasons.
+  # A malicious manifest could contain arbitrary commands.
+  # Skills should document any manual setup steps in their SKILL.md.
 
-  # Harness-specific integration
   case "$harness" in
     claude-code)
       integrate_claude_code "$skill_name" "$dest"
@@ -452,7 +431,6 @@ integrate_claude_code() {
   local skill_name="$1"
   local dest="$2"
 
-  # Auto-add skill reference to CLAUDE.md
   if [ -f "CLAUDE.md" ]; then
     if ! grep -q "$skill_name" "CLAUDE.md" 2>/dev/null; then
       {
@@ -510,19 +488,10 @@ uninstall_skill() {
     exit 1
   fi
 
-  # Run pre-uninstall hook if present
-  if [ -f "$dest/manifest.json" ]; then
-    local pre_uninstall
-    pre_uninstall=$(python3 -c "
-import json
-with open('$dest/manifest.json') as f:
-    m = json.load(f)
-print(m.get('hooks', {}).get('pre-uninstall', ''))
-" 2>/dev/null || echo "")
-    if [ -n "$pre_uninstall" ]; then
-      info "Running pre-uninstall hook..."
-      (cd "$dest" && bash -c "$pre_uninstall")
-    fi
+  # Validate skill name to prevent path traversal
+  if [[ ! "$skill_name" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+    err "Invalid skill name: $skill_name"
+    exit 1
   fi
 
   rm -rf "$dest"
@@ -548,7 +517,7 @@ if [ $# -eq 0 ]; then
   echo "  install.sh --harness <name>          Override harness (claude-code|codex|cursor|aider|generic)"
   echo ""
   echo "Remote install (no clone needed):"
-  echo -e "  ${GREEN}curl -sL https://raw.githubusercontent.com/ujjalcal/curious-stack/main/scripts/install.sh | bash -s -- <skill-name>${NC}"
+  echo -e "  ${GREEN}curl -sL https://raw.githubusercontent.com/ujjalcal/agent-skills/main/scripts/install.sh | bash -s -- <skill-name>${NC}"
   echo ""
   exit 0
 fi
