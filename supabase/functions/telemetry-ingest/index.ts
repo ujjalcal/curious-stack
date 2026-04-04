@@ -1,22 +1,15 @@
 // Supabase Edge Function: telemetry-ingest
 // Receives anonymous telemetry events from agent-skills installations.
 // POST /telemetry-ingest
-//
-// Body: single event or array of events
-// {
-//   "event": "skill.run",
-//   "skill": "ai-slop-detector",
-//   "version": "1.0.0",
-//   "timestamp": "2026-04-04T12:00:00Z",
-//   "harness": "claude-code",
-//   "outcome": { "category": "pure slop", "input_length": 300, "output_length": 500, "signals_detected": 3 },
-//   "session_id": "a1b2c3d4"
-// }
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+const MAX_BATCH_SIZE = 50;
+const MAX_STRING_LENGTH = 200;
+const VALID_EVENTS = ["skill.run", "skill.install", "skill.uninstall", "skill.eval"];
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,8 +17,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+function truncate(val: unknown, maxLen: number): string | null {
+  if (typeof val !== "string") return null;
+  return val.slice(0, maxLen);
+}
+
+function toInt(val: unknown, fallback = 0): number {
+  const n = Number(val);
+  return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : fallback;
+}
+
 Deno.serve(async (req) => {
-  // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -39,84 +41,78 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const events = Array.isArray(body) ? body : [body];
+    const rawEvents = Array.isArray(body) ? body : [body];
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    if (rawEvents.length > MAX_BATCH_SIZE) {
+      return new Response(
+        JSON.stringify({ error: `Batch too large (max ${MAX_BATCH_SIZE})` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    const rows = events.map((e: any) => {
-      // Handle install events separately
-      if (e.event === "skill.install") {
-        return {
-          table: "install_events",
-          row: {
-            version: e.version || null,
-            harness: e.harness || null,
-          },
-        };
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const eventRows: any[] = [];
+    const installRows: any[] = [];
+
+    for (const e of rawEvents) {
+      if (typeof e !== "object" || e === null) continue;
+
+      const event = truncate(e.event, MAX_STRING_LENGTH);
+
+      if (event === "skill.install") {
+        installRows.push({
+          version: truncate(e.version, 20),
+          harness: truncate(e.harness, 50),
+        });
+        continue;
       }
 
-      return {
-        table: "telemetry_events",
-        row: {
-          event: e.event || "skill.run",
-          skill: e.skill || "unknown",
-          version: e.version || null,
-          harness: e.harness || null,
-          category: e.outcome?.category || null,
-          input_length: e.outcome?.input_length || 0,
-          output_length: e.outcome?.output_length || 0,
-          signals_detected: e.outcome?.signals_detected || 0,
-          duration_seconds: e.outcome?.duration_seconds || null,
-          session_id: e.session_id || null,
-        },
-      };
-    });
+      if (!event || !VALID_EVENTS.includes(event)) continue;
 
-    // Batch insert by table
-    const eventRows = rows
-      .filter((r: any) => r.table === "telemetry_events")
-      .map((r: any) => r.row);
-    const installRows = rows
-      .filter((r: any) => r.table === "install_events")
-      .map((r: any) => r.row);
+      eventRows.push({
+        event,
+        skill: truncate(e.skill, MAX_STRING_LENGTH) || "unknown",
+        version: truncate(e.version, 20),
+        harness: truncate(e.harness, 50),
+        category: truncate(e.outcome?.category, MAX_STRING_LENGTH),
+        input_length: toInt(e.outcome?.input_length),
+        output_length: toInt(e.outcome?.output_length),
+        signals_detected: toInt(e.outcome?.signals_detected),
+        duration_seconds: Number.isFinite(Number(e.outcome?.duration_seconds))
+          ? Number(e.outcome.duration_seconds)
+          : null,
+        session_id: truncate(e.session_id, 20),
+      });
+    }
 
-    // Insert into both tables in parallel
-    const insertions = [];
+    const errors: string[] = [];
+
     if (eventRows.length > 0) {
-      insertions.push(
-        supabase.from("telemetry_events").insert(eventRows)
-          .then(({ error }) => error ? { table: "telemetry_events", error: error.message } : null)
-      );
+      const { error } = await supabase.from("telemetry_events").insert(eventRows);
+      if (error) errors.push("Failed to insert events");
     }
+
     if (installRows.length > 0) {
-      insertions.push(
-        supabase.from("install_events").insert(installRows)
-          .then(({ error }) => error ? { table: "install_events", error: error.message } : null)
-      );
+      const { error } = await supabase.from("install_events").insert(installRows);
+      if (error) errors.push("Failed to insert install events");
     }
-
-    const results = (await Promise.all(insertions)).filter(Boolean);
-
-    const hasErrors = results.length > 0;
 
     return new Response(
       JSON.stringify({
-        ok: !hasErrors,
-        accepted: events.length,
-        errors: hasErrors ? results : undefined,
+        ok: errors.length === 0,
+        accepted: eventRows.length + installRows.length,
+        errors: errors.length > 0 ? errors : undefined,
       }),
       {
-        status: hasErrors ? 207 : 200,
+        status: errors.length > 0 ? 207 : 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
-  } catch (err) {
+  } catch {
     return new Response(
       JSON.stringify({ error: "Invalid request body" }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

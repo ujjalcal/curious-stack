@@ -8,3 +8,10 @@ Thumbs.db
 # Cache
 .cache/
 .temp/
+supabase/.temp/
+
+# Environment-specific
+.mcp.json
+.env
+.env.*
+supabase/.env
