@@ -13,6 +13,7 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOST=""
 NO_TELEMETRY=false
+DEV_MODE=false
 
 # Telemetry endpoint
 TELEMETRY_ENDPOINT="${AGENT_SKILLS_TELEMETRY_URL:-https://innwfuesrwrqbvxocfgs.supabase.co/functions/v1/telemetry-ingest}"
@@ -23,6 +24,7 @@ while [ $# -gt 0 ]; do
     --host) HOST="${2:-}"; shift 2 ;;
     --host=*) HOST="${1#--host=}"; shift ;;
     --no-telemetry) NO_TELEMETRY=true; shift ;;
+    --dev) DEV_MODE=true; shift ;;
     *) shift ;;
   esac
 done
@@ -132,16 +134,17 @@ esac
 
 mkdir -p "$SKILLS_ROOT"
 
-echo ""
-echo -e "${BOLD}Available skills:${NC}"
-for skill_dir in "$SCRIPT_DIR"/skills/*/; do
-  [ -d "$skill_dir" ] || continue
-  name=$(basename "$skill_dir")
+# User skills: installed for everyone
+USER_SKILLS="ai-slop-detector upgrade-skills"
+# Developer skills: only with --dev flag
+DEV_SKILLS="create-skill improve-skill eval-skill usage-dashboard"
 
-  # Create symlink if it doesn't exist (or points elsewhere)
-  target="$SKILLS_ROOT/$name"
+link_skill() {
+  local skill_dir="$1"
+  local name=$(basename "$skill_dir")
+  local target="$SKILLS_ROOT/$name"
+
   if [ -L "$target" ] || [ -d "$target" ]; then
-    # Already exists — update if it points somewhere else
     current=$(readlink "$target" 2>/dev/null || echo "")
     if [ "$current" != "$skill_dir" ] && [ "$current" != "${skill_dir%/}" ]; then
       rm -f "$target"
@@ -150,14 +153,42 @@ for skill_dir in "$SCRIPT_DIR"/skills/*/; do
   else
     ln -s "${skill_dir%/}" "$target"
   fi
+}
 
+print_skill() {
+  local skill_dir="$1"
+  local name=$(basename "$skill_dir")
   if [ -f "$skill_dir/manifest.json" ] && command -v python3 &>/dev/null; then
     desc=$(python3 -c "import json; print(json.load(open('$skill_dir/manifest.json')).get('description', ''))" 2>/dev/null || echo "")
     echo -e "  ${GREEN}/$name${NC} — $desc"
   else
     echo -e "  ${GREEN}/$name${NC}"
   fi
+}
+
+echo ""
+echo -e "${BOLD}User skills:${NC}"
+for name in $USER_SKILLS; do
+  skill_dir="$SCRIPT_DIR/skills/$name"
+  [ -d "$skill_dir" ] || continue
+  link_skill "$skill_dir"
+  print_skill "$skill_dir"
 done
+
+if [ "$DEV_MODE" = "true" ]; then
+  echo ""
+  echo -e "${BOLD}Developer skills:${NC}"
+  for name in $DEV_SKILLS; do
+    skill_dir="$SCRIPT_DIR/skills/$name"
+    [ -d "$skill_dir" ] || continue
+    link_skill "$skill_dir"
+    print_skill "$skill_dir"
+  done
+else
+  echo ""
+  echo -e "  ${YELLOW}Developer skills available with:${NC} ./setup --dev"
+  echo -e "  (create-skill, improve-skill, eval-skill, usage-dashboard)"
+fi
 
 echo ""
 echo -e "  Skills linked to: ${BLUE}$SKILLS_ROOT${NC}"
@@ -165,7 +196,6 @@ echo -e "  Skills linked to: ${BLUE}$SKILLS_ROOT${NC}"
 echo ""
 echo -e "${GREEN}Setup complete.${NC}"
 echo -e "  Run ${BOLD}/upgrade-skills${NC} to get the latest skills"
-echo -e "  Run ${BOLD}/usage-dashboard${NC} to see how you're using skills"
 echo ""
 echo -e "  Telemetry details: ${BLUE}evals/TELEMETRY.md${NC}"
 echo -e "  Disable anytime:   ${YELLOW}./setup --no-telemetry${NC}"
