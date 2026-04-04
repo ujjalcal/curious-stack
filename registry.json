@@ -1,5 +1,5 @@
 {
-  "name": "agent-skills",
+  "name": "curious-stack",
   "version": "1.1.0",
   "description": "Downloadable skills for AI coding agents",
   "skills": [
@@ -15,7 +15,7 @@
     {
       "name": "upgrade-skills",
       "version": "1.0.0",
-      "description": "Self-updater — upgrade agent-skills to latest. Detects global vs vendored install, syncs both, shows what changed.",
+      "description": "Self-updater — upgrade curious-stack to latest. Detects global vs vendored install, syncs both, shows what changed.",
       "author": "ujjalcal",
       "tags": ["meta", "upgrade", "utility"],
       "harnesses": ["claude-code", "codex", "generic"],

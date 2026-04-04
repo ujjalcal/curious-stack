@@ -1,18 +1,18 @@
 ---
 name: upgrade-skills
-description: Pull the latest agent-skills and show what changed
+description: Pull the latest curious-stack and show what changed
 user-invocable: true
 ---
 
 # Upgrade Skills
 
-When the user runs `/upgrade-skills` or asks to upgrade agent-skills, follow this process:
+When the user runs `/upgrade-skills` or asks to upgrade curious-stack, follow this process:
 
 ## Steps
 
 1. **Detect install locations.** Check both:
-   - **Global**: `~/.claude/skills/agent-skills/` (or `~/.codex/skills/agent-skills/`)
-   - **Project-local**: `.claude/skills/agent-skills/` (or `.codex/skills/agent-skills/`)
+   - **Global**: `~/.claude/skills/curious-stack/` (or `~/.codex/skills/curious-stack/`)
+   - **Project-local**: `.claude/skills/curious-stack/` (or `.codex/skills/curious-stack/`)
    
    Report which installs exist.
 
@@ -24,10 +24,10 @@ When the user runs `/upgrade-skills` or asks to upgrade agent-skills, follow thi
    ```
    If it's not a git repo (vendored copy), pull from the global install or re-clone:
    ```bash
-   git clone --depth 1 https://github.com/ujjalcal/curious-stack.git /tmp/agent-skills-update
-   cp -Rf /tmp/agent-skills-update/skills/* <install-path>/skills/
-   cp /tmp/agent-skills-update/registry.json <install-path>/registry.json
-   rm -rf /tmp/agent-skills-update
+   git clone --depth 1 https://github.com/ujjalcal/curious-stack.git /tmp/curious-stack-update
+   cp -Rf /tmp/curious-stack-update/skills/* <install-path>/skills/
+   cp /tmp/curious-stack-update/registry.json <install-path>/registry.json
+   rm -rf /tmp/curious-stack-update
    ```
 
 4. **Sync dual installs.** If both global and project-local exist, sync the newer one to the older one so they match.
@@ -41,7 +41,7 @@ When the user runs `/upgrade-skills` or asks to upgrade agent-skills, follow thi
    
    Format:
    ```
-   Upgraded agent-skills.
+   Upgraded curious-stack.
    
    New skills:
      + skill-name — description

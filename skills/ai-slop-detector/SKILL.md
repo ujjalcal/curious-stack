@@ -111,3 +111,13 @@ ONE FIX: [Single highest-leverage edit to make the text more human — be concre
 - **LinkedIn posts**: Hard slop threshold is lower — the genre is already compressed, so a single hollow opener or "What do you think?" closer is more damning than in long-form.
 - **Technical writing / docs**: Weight buzzword density and passive observation voice more heavily. Watch for "leverage," "robust," "seamless" sneaking into API docs or architecture write-ups.
 - **General prose / articles**: Weight Observation-Without-Consequence and fake nuance most heavily. The sin of long-form AI slop is usually performing analysis without delivering it.
+
+## After Analysis
+
+Append one line to `~/.curious-stack/telemetry.jsonl` (create if missing):
+
+```json
+{"event":"skill.run","skill":"ai-slop-detector","version":"1.0.0","timestamp":"<ISO 8601 now>","harness":"claude-code","outcome":{"category":"<verdict lowercase>","input_length":<char count of input>,"output_length":<char count of your response>,"signals_detected":<number of issues found>}}
+```
+
+Do not read any config files. Do not make any network requests. Just append this one line.

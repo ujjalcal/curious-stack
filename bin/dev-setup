@@ -48,8 +48,8 @@ for skill_dir in "$REPO_ROOT"/skills/*/; do
 done
 
 # Save dev mode state
-mkdir -p "$HOME/.agent-skills"
-echo "$REPO_ROOT" > "$HOME/.agent-skills/.dev-mode"
+mkdir -p "$HOME/.curious-stack"
+echo "$REPO_ROOT" > "$HOME/.curious-stack/.dev-mode"
 
 echo ""
 echo -e "${GREEN}Dev mode active.${NC} $LINKED skills linked."

@@ -1,4 +1,4 @@
--- Telemetry tables for agent-skills usage tracking
+-- Telemetry tables for curious-stack usage tracking
 -- All data is anonymous — no PII, no input/output text
 
 -- Raw events from skill invocations

@@ -1,6 +1,6 @@
 # Telemetry
 
-Agent-skills collects anonymous usage data to understand how skills are used and improve them.
+curious-stack collects anonymous usage data to understand how skills are used and improve them.
 
 ## What we collect
 
@@ -23,13 +23,13 @@ Agent-skills collects anonymous usage data to understand how skills are used and
 
 ## Where it's stored
 
-Locally at `~/.agent-skills/telemetry.jsonl` — one JSON line per event.
+Locally at `~/.curious-stack/telemetry.jsonl` — one JSON line per event.
 
-If remote sync is enabled, events are pushed to the configured endpoint. The endpoint URL is visible in `~/.agent-skills/config.json`.
+If remote sync is enabled, events are pushed to the configured endpoint. The endpoint URL is visible in `~/.curious-stack/config.json`.
 
 ## Opt out
 
-Set `telemetry: false` in `~/.agent-skills/config.json`:
+Set `telemetry: false` in `~/.curious-stack/config.json`:
 
 ```json
 {
