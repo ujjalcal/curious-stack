@@ -1,0 +1,10 @@
+{
+  "name": "upgrade-skills",
+  "version": "1.0.0",
+  "description": "Self-updater — upgrade agent-skills to latest. Detects global vs vendored install, syncs both, shows what changed.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "prompt.md",
+  "tags": ["meta", "upgrade", "utility"]
+}

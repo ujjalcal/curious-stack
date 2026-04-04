@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# agent-skills setup
+# Detects install location and harness, wires everything up.
+
+BOLD='\033[1m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+HOST=""
+
+# Parse --host flag
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --host) HOST="${2:-}"; shift 2 ;;
+    --host=*) HOST="${1#--host=}"; shift ;;
+    *) shift ;;
+  esac
+done
+
+echo ""
+echo -e "${BOLD}agent-skills${NC} setup"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Detect harness
+if [ -n "$HOST" ]; then
+  HARNESS="$HOST"
+elif [[ "$SCRIPT_DIR" == *".claude"* ]] || command -v claude &>/dev/null; then
+  HARNESS="claude-code"
+elif [[ "$SCRIPT_DIR" == *".codex"* ]] || command -v codex &>/dev/null; then
+  HARNESS="codex"
+elif [[ "$SCRIPT_DIR" == *".cursor"* ]]; then
+  HARNESS="cursor"
+elif [[ "$SCRIPT_DIR" == *".aider"* ]]; then
+  HARNESS="aider"
+else
+  HARNESS="generic"
+fi
+
+echo -e "  Harness:  ${GREEN}$HARNESS${NC}"
+echo -e "  Location: ${GREEN}$SCRIPT_DIR${NC}"
+
+# Count available skills
+SKILL_COUNT=$(find "$SCRIPT_DIR/skills" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l)
+echo -e "  Skills:   ${GREEN}$SKILL_COUNT${NC}"
+
+# Make scripts executable
+chmod +x "$SCRIPT_DIR/scripts/install.sh" 2>/dev/null || true
+chmod +x "$SCRIPT_DIR/setup" 2>/dev/null || true
+
+# List available skills
+echo ""
+echo -e "${BOLD}Available skills:${NC}"
+for skill_dir in "$SCRIPT_DIR"/skills/*/; do
+  [ -d "$skill_dir" ] || continue
+  name=$(basename "$skill_dir")
+  if [ -f "$skill_dir/manifest.json" ] && command -v python3 &>/dev/null; then
+    desc=$(python3 -c "import json; print(json.load(open('$skill_dir/manifest.json')).get('description', ''))" 2>/dev/null || echo "")
+    echo -e "  ${GREEN}/$name${NC} — $desc"
+  else
+    echo -e "  ${GREEN}/$name${NC}"
+  fi
+done
+
+# Platform-specific hints
+echo ""
+case "$HARNESS" in
+  claude-code)
+    echo -e "${BOLD}Next step:${NC} Add this to your CLAUDE.md:"
+    echo ""
+    echo "  ## Agent Skills"
+    for skill_dir in "$SCRIPT_DIR"/skills/*/; do
+      [ -d "$skill_dir" ] || continue
+      name=$(basename "$skill_dir")
+      # Compute relative path from project root
+      rel_path="${SCRIPT_DIR#$PWD/}"
+      [ "$rel_path" = "$SCRIPT_DIR" ] && rel_path="$SCRIPT_DIR"
+      echo "  When asked to use /$name, follow the instructions in \`$rel_path/skills/$name/prompt.md\`"
+    done
+    ;;
+  codex)
+    echo -e "${BOLD}Next step:${NC} Add skill references to your AGENTS.md"
+    ;;
+  cursor)
+    echo -e "${BOLD}Next step:${NC} Add skill references to your .cursorrules"
+    ;;
+  *)
+    echo -e "${BOLD}Next step:${NC} Point your agent at the skills/*/prompt.md files"
+    ;;
+esac
+
+echo ""
+echo -e "${GREEN}Setup complete.${NC} Run ${BOLD}/upgrade-skills${NC} anytime to get the latest."
+echo ""
