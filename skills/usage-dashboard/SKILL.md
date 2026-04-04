@@ -1,3 +1,9 @@
+---
+name: usage-dashboard
+description: Show skill usage stats, trends, and insights from telemetry data
+user-invocable: true
+---
+
 # Usage Dashboard
 
 When the user runs `/usage-dashboard` or asks about skill usage, read the telemetry log and show insights.

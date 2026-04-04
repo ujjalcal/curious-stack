@@ -120,13 +120,37 @@ chmod +x "$SCRIPT_DIR/scripts/"*.sh "$SCRIPT_DIR/scripts/"*.py 2>/dev/null || tr
 chmod +x "$SCRIPT_DIR/scripts/runners/"*.sh 2>/dev/null || true
 chmod +x "$SCRIPT_DIR/setup" 2>/dev/null || true
 
-# ── List available skills ─────────────────────────────────────────────
+# ── Create symlinks for skill discovery ──────────────────────────────
+
+SKILLS_ROOT=""
+case "$HARNESS" in
+  claude-code) SKILLS_ROOT="$HOME/.claude/skills" ;;
+  codex)       SKILLS_ROOT="$HOME/.codex/skills" ;;
+  cursor)      SKILLS_ROOT="$HOME/.cursor/skills" ;;
+  *)           SKILLS_ROOT="$HOME/.claude/skills" ;;
+esac
+
+mkdir -p "$SKILLS_ROOT"
 
 echo ""
 echo -e "${BOLD}Available skills:${NC}"
 for skill_dir in "$SCRIPT_DIR"/skills/*/; do
   [ -d "$skill_dir" ] || continue
   name=$(basename "$skill_dir")
+
+  # Create symlink if it doesn't exist (or points elsewhere)
+  target="$SKILLS_ROOT/$name"
+  if [ -L "$target" ] || [ -d "$target" ]; then
+    # Already exists — update if it points somewhere else
+    current=$(readlink "$target" 2>/dev/null || echo "")
+    if [ "$current" != "$skill_dir" ] && [ "$current" != "${skill_dir%/}" ]; then
+      rm -f "$target"
+      ln -s "${skill_dir%/}" "$target"
+    fi
+  else
+    ln -s "${skill_dir%/}" "$target"
+  fi
+
   if [ -f "$skill_dir/manifest.json" ] && command -v python3 &>/dev/null; then
     desc=$(python3 -c "import json; print(json.load(open('$skill_dir/manifest.json')).get('description', ''))" 2>/dev/null || echo "")
     echo -e "  ${GREEN}/$name${NC} — $desc"
@@ -135,33 +159,8 @@ for skill_dir in "$SCRIPT_DIR"/skills/*/; do
   fi
 done
 
-# ── Platform-specific hints ───────────────────────────────────────────
-
 echo ""
-case "$HARNESS" in
-  claude-code)
-    echo -e "${BOLD}Next step:${NC} Add this to your CLAUDE.md:"
-    echo ""
-    echo "  ## Agent Skills"
-    echo "  After running any skill, log telemetry per the instructions in the skill's prompt."
-    for skill_dir in "$SCRIPT_DIR"/skills/*/; do
-      [ -d "$skill_dir" ] || continue
-      name=$(basename "$skill_dir")
-      rel_path="${SCRIPT_DIR#$PWD/}"
-      [ "$rel_path" = "$SCRIPT_DIR" ] && rel_path="$SCRIPT_DIR"
-      echo "  When asked to use /$name, follow the instructions in \`$rel_path/skills/$name/prompt.md\`"
-    done
-    ;;
-  codex)
-    echo -e "${BOLD}Next step:${NC} Add skill references to your AGENTS.md"
-    ;;
-  cursor)
-    echo -e "${BOLD}Next step:${NC} Add skill references to your .cursorrules"
-    ;;
-  *)
-    echo -e "${BOLD}Next step:${NC} Point your agent at the skills/*/prompt.md files"
-    ;;
-esac
+echo -e "  Skills linked to: ${BLUE}$SKILLS_ROOT${NC}"
 
 echo ""
 echo -e "${GREEN}Setup complete.${NC}"

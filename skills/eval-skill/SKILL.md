@@ -1,3 +1,10 @@
+---
+name: eval-skill
+description: Run eval cases against a skill and report pass/fail with scores
+user-invocable: true
+argument-hint: "<skill-name>"
+---
+
 # Eval Skill
 
 When the user runs `/eval-skill` or asks to evaluate/test a skill, follow this process:
@@ -5,7 +12,7 @@ When the user runs `/eval-skill` or asks to evaluate/test a skill, follow this p
 ## Step 1: Pick the skill
 
 Ask which skill to evaluate, or detect it from context. Read:
-1. `skills/<name>/prompt.md` — the skill prompt
+1. `skills/<name>/SKILL.md` — the skill prompt
 2. `skills/<name>/evals/*.json` — the eval cases
 
 If no eval cases exist, say so and offer to create some first (use the `/create-skill` pattern for generating eval cases).
@@ -15,7 +22,7 @@ If no eval cases exist, say so and offer to create some first (use the `/create-
 For each case in the evals JSON:
 
 1. Read the `input` field
-2. Execute the skill yourself — follow the instructions in `prompt.md` as if the user pasted the input
+2. Execute the skill yourself — follow the instructions in `SKILL.md` as if the user pasted the input
 3. Produce your full output for that input
 4. Then immediately judge your own output against the case criteria:
 

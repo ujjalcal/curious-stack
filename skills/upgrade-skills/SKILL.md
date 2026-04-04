@@ -1,3 +1,9 @@
+---
+name: upgrade-skills
+description: Pull the latest agent-skills and show what changed
+user-invocable: true
+---
+
 # Upgrade Skills
 
 When the user runs `/upgrade-skills` or asks to upgrade agent-skills, follow this process:

@@ -5,6 +5,6 @@
   "author": "ujjalcal",
   "license": "MIT",
   "harnesses": ["claude-code", "codex", "generic"],
-  "entry": "prompt.md",
+  "entry": "SKILL.md",
   "tags": ["meta", "testing", "quality", "eval"]
 }

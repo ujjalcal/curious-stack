@@ -1,3 +1,10 @@
+---
+name: improve-skill
+description: Analyze a skill's usage and evals, suggest concrete improvements
+user-invocable: true
+argument-hint: "<skill-name>"
+---
+
 # Improve Skill
 
 When the user runs `/improve-skill` or asks to improve an existing skill, follow this process:
@@ -5,7 +12,7 @@ When the user runs `/improve-skill` or asks to improve an existing skill, follow
 ## Step 1: Pick the skill
 
 Ask which skill to improve, or detect it from context. Read these:
-1. `skills/<name>/prompt.md` — the current prompt
+1. `skills/<name>/SKILL.md` — the current prompt
 2. `skills/<name>/usage.md` — the usage log (if it exists)
 3. `skills/<name>/evals/*.json` — the test cases (if they exist)
 4. `skills/<name>/evals/results/latest.json` — live eval results (if they exist)
@@ -49,7 +56,7 @@ Present improvements as a concrete diff — not vague advice. Format:
 
 ### Suggested Changes
 
-**prompt.md:**
+**SKILL.md:**
 - Line X: Change "<old>" to "<new>" because <reason>
 - Add new section: <what and why>
 
@@ -66,7 +73,7 @@ Present improvements as a concrete diff — not vague advice. Format:
 Ask: "Want me to apply these changes?"
 
 If yes:
-1. Update `prompt.md`
+1. Update `SKILL.md`
 2. Add new eval cases to `evals/`
 3. Bump the patch version in `manifest.json` and `registry.json`
 4. Run `./scripts/validate.sh` — must pass

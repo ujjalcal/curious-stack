@@ -443,7 +443,7 @@ print(m.get('hooks', {}).get('post-install', ''))
   echo ""
   echo -e "  ${BOLD}Location:${NC}  $dest"
   echo -e "  ${BOLD}Harness:${NC}   $harness"
-  echo -e "  ${BOLD}Prompt:${NC}    $dest/prompt.md"
+  echo -e "  ${BOLD}Prompt:${NC}    $dest/SKILL.md"
   echo ""
   echo -e "  Uninstall: ${YELLOW}./scripts/install.sh --uninstall $skill_name${NC}"
 }
@@ -458,7 +458,7 @@ integrate_claude_code() {
       {
         echo ""
         echo "## Skill: $skill_name"
-        echo "When relevant, follow the instructions in \`.claude/skills/$skill_name/prompt.md\`"
+        echo "When relevant, follow the instructions in \`.claude/skills/$skill_name/SKILL.md\`"
       } >> CLAUDE.md
       info "Added skill reference to CLAUDE.md"
     fi
@@ -467,7 +467,7 @@ integrate_claude_code() {
       echo "# Project Instructions"
       echo ""
       echo "## Skill: $skill_name"
-      echo "When relevant, follow the instructions in \`.claude/skills/$skill_name/prompt.md\`"
+      echo "When relevant, follow the instructions in \`.claude/skills/$skill_name/SKILL.md\`"
     } > CLAUDE.md
     info "Created CLAUDE.md with skill reference"
   fi
@@ -482,7 +482,7 @@ integrate_codex() {
       {
         echo ""
         echo "## Skill: $skill_name"
-        echo "When relevant, follow the instructions in \`.codex/skills/$skill_name/prompt.md\`"
+        echo "When relevant, follow the instructions in \`.codex/skills/$skill_name/SKILL.md\`"
       } >> AGENTS.md
       info "Added skill reference to AGENTS.md"
     fi
@@ -491,7 +491,7 @@ integrate_codex() {
       echo "# Agent Instructions"
       echo ""
       echo "## Skill: $skill_name"
-      echo "When relevant, follow the instructions in \`.codex/skills/$skill_name/prompt.md\`"
+      echo "When relevant, follow the instructions in \`.codex/skills/$skill_name/SKILL.md\`"
     } > AGENTS.md
     info "Created AGENTS.md with skill reference"
   fi

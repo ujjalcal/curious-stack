@@ -1,3 +1,10 @@
+---
+name: ai-slop-detector
+description: Analyze text for patterns that signal hollow, AI-generated writing
+user-invocable: true
+argument-hint: "<paste text to analyze>"
+---
+
 # AI Slop Detector
 
 Analyze pasted text for patterns that signal hollow, AI-generated writing. Return a tight verdict with the most damning issues — no padding, no softening.

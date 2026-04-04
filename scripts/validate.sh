@@ -81,7 +81,7 @@ for skill_dir in "$REPO_ROOT"/skills/*/; do
   echo -e "${BOLD}Skill: $name${NC}"
 
   manifest="$skill_dir/manifest.json"
-  prompt="$skill_dir/prompt.md"
+  prompt="$skill_dir/SKILL.md"
   evals_dir="$skill_dir/evals"
 
   # manifest.json exists and is valid JSON?
@@ -137,29 +137,29 @@ if not re.match(r'^\d+\.\d+\.\d+$', v):
     fi
   fi
 
-  # prompt.md exists and has content?
+  # SKILL.md exists and has content?
   if [ ! -f "$prompt" ]; then
-    fail "prompt.md missing"
+    fail "SKILL.md missing"
   else
     line_count=$(wc -l < "$prompt")
     if [ "$line_count" -gt 5 ]; then
-      pass "prompt.md has content ($line_count lines)"
+      pass "SKILL.md has content ($line_count lines)"
     else
-      fail "prompt.md is too short ($line_count lines — is it a stub?)"
+      fail "SKILL.md is too short ($line_count lines — is it a stub?)"
     fi
 
     # Has a heading?
     if head -5 "$prompt" | grep -q '^#'; then
-      pass "prompt.md starts with a heading"
+      pass "SKILL.md starts with a heading"
     else
-      warn "prompt.md has no heading in first 5 lines"
+      warn "SKILL.md has no heading in first 5 lines"
     fi
 
     # Has a steps/process section?
     if grep -qi '^\(##\|###\).*\(step\|process\|workflow\|how\|rules\|format\)' "$prompt"; then
-      pass "prompt.md has structured sections"
+      pass "SKILL.md has structured sections"
     else
-      warn "prompt.md may lack structured sections (Steps, Rules, Format)"
+      warn "SKILL.md may lack structured sections (Steps, Rules, Format)"
     fi
   fi
 

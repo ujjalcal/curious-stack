@@ -13,7 +13,7 @@ Copy the block for your agent. Paste it into a new chat. That's it.
 > Install agent-skills: run `git clone --depth 1 https://github.com/ujjalcal/agent-skills.git ~/.codex/skills/agent-skills && cd ~/.codex/skills/agent-skills && ./setup --host codex` then add an "Agent Skills" section to AGENTS.md listing the available skills: /ai-slop-detector, /upgrade-skills, /create-skill, /improve-skill, /eval-skill, /usage-dashboard
 
 **Cursor / Windsurf / Other:**
-> Install agent-skills: run `git clone --depth 1 https://github.com/ujjalcal/agent-skills.git .agent-skills` then read the skills in `.agent-skills/skills/*/prompt.md` and follow them when asked.
+> Install agent-skills: run `git clone --depth 1 https://github.com/ujjalcal/agent-skills.git .agent-skills` then read the skills in `.agent-skills/skills/*/SKILL.md` and follow them when asked.
 
 ## Skills
 

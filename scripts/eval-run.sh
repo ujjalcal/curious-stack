@@ -73,7 +73,7 @@ TOTAL_FLAKY=0
 run_skill_evals() {
   local skill_name="$1"
   local skill_dir="$REPO_ROOT/skills/$skill_name"
-  local prompt_file="$skill_dir/prompt.md"
+  local prompt_file="$skill_dir/SKILL.md"
   local manifest="$skill_dir/manifest.json"
   local evals_dir="$skill_dir/evals"
   local results_dir="$evals_dir/results"

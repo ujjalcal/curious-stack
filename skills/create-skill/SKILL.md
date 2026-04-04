@@ -1,3 +1,9 @@
+---
+name: create-skill
+description: Build a new agent skill from a plain description
+user-invocable: true
+---
+
 # Create Skill
 
 When the user runs `/create-skill` or asks to create a new agent skill, walk them through it conversationally, then generate everything.
@@ -20,7 +26,7 @@ From their description, create three things:
 - Short and obvious
 - Confirm with the user: "I'll call this **my-skill-name** — good?"
 
-### 2b. Write `prompt.md`
+### 2b. Write `SKILL.md`
 
 This is the heart of the skill. Write it as clear instructions an AI agent will follow. Use this structure:
 
@@ -59,7 +65,7 @@ This is the heart of the skill. Write it as clear instructions an AI agent will 
   "author": "<ask the user or use their git username>",
   "license": "MIT",
   "harnesses": ["claude-code", "codex", "cursor", "aider", "generic"],
-  "entry": "prompt.md",
+  "entry": "SKILL.md",
   "tags": ["<3-5 relevant tags>"]
 }
 ```
@@ -68,7 +74,7 @@ This is the heart of the skill. Write it as clear instructions an AI agent will 
 
 1. Create the directory: `skills/<skill-name>/`
 2. Write `skills/<skill-name>/manifest.json`
-3. Write `skills/<skill-name>/prompt.md`
+3. Write `skills/<skill-name>/SKILL.md`
 4. Add an entry to `registry.json`:
    ```json
    {
@@ -133,7 +139,7 @@ Created skill: <skill-name>
 
 Files:
   skills/<skill-name>/manifest.json
-  skills/<skill-name>/prompt.md
+  skills/<skill-name>/SKILL.md
   skills/<skill-name>/evals/samples.json
   registry.json (updated)
 
@@ -145,7 +151,7 @@ To share it: commit and submit a PR
 
 ## Rules
 - Always ask what the skill should do first. Never guess.
-- The prompt.md must be actionable — steps an agent can follow, not vague advice.
+- The SKILL.md must be actionable — steps an agent can follow, not vague advice.
 - Every skill must have a defined output format.
 - Keep names short. `check-accessibility` not `comprehensive-web-accessibility-audit-tool`.
 - Default to all harnesses unless the skill is truly platform-specific.
