@@ -14,8 +14,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOST=""
 NO_TELEMETRY=false
 
-# Telemetry endpoint — set this after deploying Supabase (see supabase/DEPLOY.md)
-TELEMETRY_ENDPOINT="${AGENT_SKILLS_TELEMETRY_URL:-}"
+# Telemetry endpoint
+TELEMETRY_ENDPOINT="${AGENT_SKILLS_TELEMETRY_URL:-https://innwfuesrwrqbvxocfgs.supabase.co/functions/v1/telemetry-ingest}"
 
 # Parse flags
 while [ $# -gt 0 ]; do

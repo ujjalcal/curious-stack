@@ -10,7 +10,7 @@
 ### 1. Create a Supabase project
 
 Go to [supabase.com/dashboard](https://supabase.com/dashboard) and create a new project. Note your:
-- **Project URL**: `https://xxxxx.supabase.co`
+- **Project URL**: `https://innwfuesrwrqbvxocfgs.supabase.co`
 - **Anon key**: for public access
 - **Service role key**: for edge functions
 
@@ -35,7 +35,7 @@ supabase functions deploy update-check
 
 Your telemetry endpoint is:
 ```
-https://xxxxx.supabase.co/functions/v1/telemetry-ingest
+https://innwfuesrwrqbvxocfgs.supabase.co/functions/v1/telemetry-ingest
 ```
 
 Add it to the setup script or tell users to configure it:
@@ -43,7 +43,7 @@ Add it to the setup script or tell users to configure it:
 ```json
 {
   "telemetry": true,
-  "telemetry_endpoint": "https://xxxxx.supabase.co/functions/v1/telemetry-ingest"
+  "telemetry_endpoint": "https://innwfuesrwrqbvxocfgs.supabase.co/functions/v1/telemetry-ingest"
 }
 ```
 
@@ -60,7 +60,7 @@ Add it to the setup script or tell users to configure it:
 ### Send a telemetry event
 
 ```bash
-curl -X POST https://xxxxx.supabase.co/functions/v1/telemetry-ingest \
+curl -X POST https://innwfuesrwrqbvxocfgs.supabase.co/functions/v1/telemetry-ingest \
   -H "Content-Type: application/json" \
   -d '{"event":"skill.run","skill":"ai-slop-detector","version":"1.0.0","harness":"claude-code","outcome":{"category":"pure slop","input_length":300}}'
 ```
@@ -69,19 +69,19 @@ curl -X POST https://xxxxx.supabase.co/functions/v1/telemetry-ingest \
 
 ```bash
 # All skills, last 30 days
-curl https://xxxxx.supabase.co/functions/v1/community-pulse
+curl https://innwfuesrwrqbvxocfgs.supabase.co/functions/v1/community-pulse
 
 # Specific skill
-curl https://xxxxx.supabase.co/functions/v1/community-pulse?skill=ai-slop-detector
+curl https://innwfuesrwrqbvxocfgs.supabase.co/functions/v1/community-pulse?skill=ai-slop-detector
 
 # Last 7 days
-curl https://xxxxx.supabase.co/functions/v1/community-pulse?days=7
+curl https://innwfuesrwrqbvxocfgs.supabase.co/functions/v1/community-pulse?days=7
 ```
 
 ### Check for updates
 
 ```bash
-curl "https://xxxxx.supabase.co/functions/v1/update-check?version=1.1.0&skills=ai-slop-detector,create-skill"
+curl "https://innwfuesrwrqbvxocfgs.supabase.co/functions/v1/update-check?version=1.1.0&skills=ai-slop-detector,create-skill"
 ```
 
 ## Database Tables
