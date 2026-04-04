@@ -125,6 +125,14 @@ json.dump(c, open('$CONFIG_FILE','w'), indent=2)
   else
     TELEMETRY_STATUS=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('telemetry', False))" 2>/dev/null || echo "False")
     if [ "$TELEMETRY_STATUS" = "True" ]; then
+      # Ensure endpoint is set when telemetry is on (may have been enabled manually)
+      python3 -c "
+import json
+c = json.load(open('$CONFIG_FILE'))
+if 'telemetry_endpoint' not in c:
+    c['telemetry_endpoint'] = '$TELEMETRY_ENDPOINT'
+    json.dump(c, open('$CONFIG_FILE','w'), indent=2)
+" 2>/dev/null || true
       echo -e "  Telemetry: ${GREEN}on${NC}"
     else
       echo -e "  Telemetry: ${YELLOW}off${NC}"
