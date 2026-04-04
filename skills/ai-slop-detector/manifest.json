@@ -1,0 +1,10 @@
+{
+  "name": "ai-slop-detector",
+  "version": "1.0.0",
+  "description": "Analyze text for patterns that signal hollow, AI-generated writing. Returns a tight verdict with the most damning issues.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "prompt.md",
+  "tags": ["writing", "detection", "quality", "editing", "ai-slop"]
+}

@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent Skill Manifest",
+  "description": "Schema for an installable agent skill package",
+  "type": "object",
+  "required": ["name", "version", "description", "author", "harnesses", "entry"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique skill identifier (lowercase, hyphens only)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver version"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of what the skill does"
+    },
+    "author": {
+      "type": "string"
+    },
+    "license": {
+      "type": "string",
+      "default": "MIT"
+    },
+    "harnesses": {
+      "type": "array",
+      "items": {
+        "enum": ["claude-code", "codex", "aider", "cursor", "generic"]
+      },
+      "minItems": 1,
+      "description": "Which agent harnesses this skill supports"
+    },
+    "entry": {
+      "type": "string",
+      "description": "Main prompt/instruction file (relative path)"
+    },
+    "hooks": {
+      "type": "object",
+      "description": "Optional lifecycle hooks (shell commands)",
+      "properties": {
+        "pre-install": { "type": "string" },
+        "post-install": { "type": "string" },
+        "pre-uninstall": { "type": "string" }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Searchable tags"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Other skills this depends on"
+    },
+    "config": {
+      "type": "object",
+      "description": "User-configurable options with defaults",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "type": { "type": "string" },
+          "default": {}
+        }
+      }
+    }
+  }
+}

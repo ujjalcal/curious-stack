@@ -1,0 +1,16 @@
+{
+  "name": "agent-skills-marketplace",
+  "version": "1.0.0",
+  "description": "Community registry of agent skills for Claude Code, Codex, and other AI agent harnesses",
+  "skills": [
+    {
+      "name": "ai-slop-detector",
+      "version": "1.0.0",
+      "description": "Analyze text for patterns that signal hollow, AI-generated writing. Returns a tight verdict with the most damning issues.",
+      "author": "ujjalcal",
+      "tags": ["writing", "detection", "quality", "editing", "ai-slop"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/ai-slop-detector"
+    }
+  ]
+}
