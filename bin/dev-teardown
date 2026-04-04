@@ -45,7 +45,7 @@ for skill_dir in "$REPO_ROOT"/skills/*/; do
 done
 
 # Clear dev mode state
-rm -f "$HOME/.agent-skills/.dev-mode"
+rm -f "$HOME/.curious-stack/.dev-mode"
 
 echo ""
 echo -e "${GREEN}Dev mode deactivated.${NC} $REMOVED symlinks removed."

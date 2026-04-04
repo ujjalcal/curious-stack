@@ -22,7 +22,7 @@ fail() { echo -e "  ${RED}FAIL${NC}  $*"; ERRORS=$((ERRORS + 1)); }
 warn() { echo -e "  ${YELLOW}warn${NC}  $*"; WARNINGS=$((WARNINGS + 1)); }
 
 echo ""
-echo -e "${BOLD}Validating agent-skills${NC}"
+echo -e "${BOLD}Validating curious-stack${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # ── 1. Registry checks ───────────────────────────────────────────────

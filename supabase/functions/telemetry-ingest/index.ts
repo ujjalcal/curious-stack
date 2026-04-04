@@ -1,5 +1,5 @@
 // Supabase Edge Function: telemetry-ingest
-// Receives anonymous telemetry events from agent-skills installations.
+// Receives anonymous telemetry events from curious-stack installations.
 // POST /telemetry-ingest
 //
 // Body: single event or array of events

@@ -1,6 +1,6 @@
 [project]
 id = "innwfuesrwrqbvxocfgs"
-name = "agent-skills"
+name = "curious-stack"
 
 [api]
 enabled = true

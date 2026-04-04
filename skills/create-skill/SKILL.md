@@ -8,7 +8,7 @@ user-invocable: true
 
 When the user runs `/create-skill` or asks to create a new agent skill, guide them through: understand intent, write the skill, test it, iterate until it works.
 
-**Before writing anything**, read `references/skill-writing-guide.md` in the agent-skills repo root. It defines the skill structure, writing principles, eval format, and quality bar. Follow it.
+**Before writing anything**, read `references/skill-writing-guide.md` in the curious-stack repo root. It defines the skill structure, writing principles, eval format, and quality bar. Follow it.
 
 ## Step 1: Capture Intent
 
