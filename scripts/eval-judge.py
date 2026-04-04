@@ -21,6 +21,8 @@ import subprocess
 import argparse
 from pathlib import Path
 
+repo_root = Path(__file__).resolve().parent.parent
+
 # Verdict ordinal scale — extend as needed per skill
 VERDICT_SCALE = {
     "clean": 0,
@@ -186,8 +188,26 @@ def run_judge(
     runner: str = "auto",
 ) -> dict:
     """Score output using LLM-as-judge. Returns score 1-5."""
-    repo_root = Path(__file__).parent.parent
-    rubric_template = (repo_root / "evals" / "eval-rubric.md").read_text()
+    rubric_template = """# Eval Judge
+
+You are judging the output of an AI skill.
+
+**Skill:** {skill_description}
+**Input:** {input}
+**Output to judge:** {output}
+**Rubric:** {rubric}
+
+Score the output 1-5:
+- 5: Excellent — fully meets the rubric, specific, actionable
+- 4: Good — meets most criteria, minor gaps
+- 3: Acceptable — meets minimum bar but has clear weaknesses
+- 2: Poor — misses key criteria, vague or off-target
+- 1: Failed — does not meet the rubric at all
+
+Respond with exactly:
+SCORE: <1-5>
+REASON: <one sentence explaining your score>
+"""
 
     judge_prompt = rubric_template.replace("{skill_description}", skill_description)
     judge_prompt = judge_prompt.replace("{input}", input_text[:500])  # truncate long inputs
