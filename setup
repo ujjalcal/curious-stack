@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# agent-skills setup
+# curious-stack setup
 # Detects install location and harness, configures telemetry, wires everything up.
 
 BOLD='\033[1m'
@@ -13,6 +13,7 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOST=""
 NO_TELEMETRY=false
+YES_TELEMETRY=false
 DEV_MODE=false
 
 # Telemetry endpoint
@@ -24,13 +25,14 @@ while [ $# -gt 0 ]; do
     --host) HOST="${2:-}"; shift 2 ;;
     --host=*) HOST="${1#--host=}"; shift ;;
     --no-telemetry) NO_TELEMETRY=true; shift ;;
+    --telemetry) YES_TELEMETRY=true; shift ;;
     --dev) DEV_MODE=true; shift ;;
     *) shift ;;
   esac
 done
 
 echo ""
-echo -e "${BOLD}agent-skills${NC} setup"
+echo -e "${BOLD}curious-stack${NC} setup"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Detect harness
@@ -63,24 +65,46 @@ CONFIG_FILE="$CONFIG_DIR/config.json"
 mkdir -p "$CONFIG_DIR"
 
 if [ ! -f "$CONFIG_FILE" ]; then
-  # First install — create config
+  # First install — ask for consent (default: off)
   if [ "$NO_TELEMETRY" = "true" ]; then
-    echo '{"telemetry": false, "harness": "'$HARNESS'"}' | python3 -c "import json,sys; json.dump(json.load(sys.stdin), open('$CONFIG_FILE','w'), indent=2)" 2>/dev/null || echo '{"telemetry": false}' > "$CONFIG_FILE"
-    echo -e "  Telemetry: ${YELLOW}off${NC}"
+    TELEMETRY_CHOICE=false
+  elif [ "$YES_TELEMETRY" = "true" ]; then
+    TELEMETRY_CHOICE=true
   else
-    python3 -c "
+    echo ""
+    echo -e "  ${BOLD}Anonymous usage telemetry${NC}"
+    echo "  Collects: skill name, verdict category, input/output length."
+    echo "  Never collects: actual text, file paths, or personal info."
+    echo "  Details: evals/TELEMETRY.md"
+    echo ""
+    echo -n "  Share anonymous usage data to help improve skills? [y/N] "
+    # Auto-select N after 15 seconds
+    if read -t 15 -r answer; then
+      case "$answer" in
+        [yY]|[yY][eE][sS]) TELEMETRY_CHOICE=true ;;
+        *) TELEMETRY_CHOICE=false ;;
+      esac
+    else
+      echo "N (auto)"
+      TELEMETRY_CHOICE=false
+    fi
+  fi
+
+  python3 -c "
 import json
-config = {'telemetry': True, 'harness': '$HARNESS'}
-endpoint = '$TELEMETRY_ENDPOINT'
-if endpoint:
-    config['telemetry_endpoint'] = endpoint
+config = {'telemetry': $TELEMETRY_CHOICE, 'harness': '$HARNESS'}
+if $TELEMETRY_CHOICE:
+    config['telemetry_endpoint'] = '$TELEMETRY_ENDPOINT'
 json.dump(config, open('$CONFIG_FILE','w'), indent=2)
-" 2>/dev/null || echo '{"telemetry": true}' > "$CONFIG_FILE"
-    echo -e "  Telemetry: ${GREEN}on${NC} (anonymous usage data — opt out with --no-telemetry)"
+" 2>/dev/null || echo "{\"telemetry\": $TELEMETRY_CHOICE}" > "$CONFIG_FILE"
+
+  if [ "$TELEMETRY_CHOICE" = "true" ]; then
+    echo -e "  Telemetry: ${GREEN}on${NC}"
+  else
+    echo -e "  Telemetry: ${YELLOW}off${NC}"
   fi
 else
-  # Existing config — respect existing preference
-  TELEMETRY_STATUS=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('telemetry', True))" 2>/dev/null || echo "True")
+  # Existing config — respect existing preference, allow overrides
   if [ "$NO_TELEMETRY" = "true" ]; then
     python3 -c "
 import json
@@ -89,30 +113,22 @@ c['telemetry'] = False
 json.dump(c, open('$CONFIG_FILE','w'), indent=2)
 " 2>/dev/null
     echo -e "  Telemetry: ${YELLOW}off${NC} (disabled)"
-  elif [ "$TELEMETRY_STATUS" = "False" ]; then
-    echo -e "  Telemetry: ${YELLOW}off${NC}"
-  else
-    echo -e "  Telemetry: ${GREEN}on${NC}"
-  fi
-fi
-
-# Log install event
-if [ "$NO_TELEMETRY" != "true" ]; then
-  TELEMETRY_ON=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('telemetry', True))" 2>/dev/null || echo "True")
-  if [ "$TELEMETRY_ON" = "True" ]; then
+  elif [ "$YES_TELEMETRY" = "true" ]; then
     python3 -c "
-import json, datetime
-event = {
-    'event': 'skill.install',
-    'skill': '_all',
-    'version': '$(python3 -c "import json; print(json.load(open('$SCRIPT_DIR/registry.json')).get('version', '0.0.0'))" 2>/dev/null || echo "0.0.0")',
-    'timestamp': datetime.datetime.utcnow().isoformat() + 'Z',
-    'harness': '$HARNESS',
-    'outcome': {'category': 'install', 'input_length': 0, 'output_length': 0}
-}
-with open('$CONFIG_DIR/telemetry.jsonl', 'a') as f:
-    f.write(json.dumps(event) + '\n')
-" 2>/dev/null || true
+import json
+c = json.load(open('$CONFIG_FILE'))
+c['telemetry'] = True
+c['telemetry_endpoint'] = '$TELEMETRY_ENDPOINT'
+json.dump(c, open('$CONFIG_FILE','w'), indent=2)
+" 2>/dev/null
+    echo -e "  Telemetry: ${GREEN}on${NC} (enabled)"
+  else
+    TELEMETRY_STATUS=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('telemetry', False))" 2>/dev/null || echo "False")
+    if [ "$TELEMETRY_STATUS" = "True" ]; then
+      echo -e "  Telemetry: ${GREEN}on${NC}"
+    else
+      echo -e "  Telemetry: ${YELLOW}off${NC}"
+    fi
   fi
 fi
 
@@ -195,8 +211,6 @@ echo -e "  Skills linked to: ${BLUE}$SKILLS_ROOT${NC}"
 
 echo ""
 echo -e "${GREEN}Setup complete.${NC}"
-echo -e "  Run ${BOLD}/upgrade-skills${NC} to get the latest skills"
-echo ""
-echo -e "  Telemetry details: ${BLUE}evals/TELEMETRY.md${NC}"
-echo -e "  Disable anytime:   ${YELLOW}./setup --no-telemetry${NC}"
+echo -e "  Telemetry:  ${BOLD}./setup --telemetry${NC} to enable, ${BOLD}./setup --no-telemetry${NC} to disable"
+echo -e "  Upgrade:    ${BOLD}/upgrade-skills${NC}"
 echo ""
