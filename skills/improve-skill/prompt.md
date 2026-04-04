@@ -61,7 +61,7 @@ Present improvements as a concrete diff — not vague advice. Format:
 <show the key change in context>
 ```
 
-## Step 4: Apply (with permission)
+## Step 4: Apply and verify (with permission)
 
 Ask: "Want me to apply these changes?"
 
@@ -69,9 +69,11 @@ If yes:
 1. Update `prompt.md`
 2. Add new eval cases to `evals/`
 3. Bump the patch version in `manifest.json` and `registry.json`
-4. Run `./scripts/validate.sh` to confirm everything passes
-5. Run `./scripts/eval.sh <skill-name>` to confirm static evals pass
-6. If a runner is available, run `./scripts/eval-run.sh <skill-name>` to run live evals
+4. Run `./scripts/validate.sh` — must pass
+5. **Run evals before accepting:** Execute each eval case yourself — run the updated skill prompt against each input, judge your own output against the case criteria
+6. Report results: `Eval Results: X/Y passed`
+7. If any eval fails after your changes, fix the prompt or eval and re-run
+8. Only present the improvement as done after all evals pass
 
 ## Rules
 - Never rewrite a skill from scratch. Improve incrementally.

@@ -82,7 +82,49 @@ This is the heart of the skill. Write it as clear instructions an AI agent will 
    }
    ```
 
-## Step 4: Show the user what was created
+## Step 4: Generate eval cases
+
+Every skill must ship with evals. Create `skills/<skill-name>/evals/samples.json` with at least 3 test cases:
+
+```json
+{
+  "description": "Test cases for <skill-name>",
+  "config": { "runs_per_case": 3, "pass_threshold": 0.67 },
+  "cases": [
+    {
+      "id": "<short-id>",
+      "description": "<what this tests>",
+      "input": "<sample input>",
+      "expected_verdict": "<expected output category if applicable>",
+      "verdict_tolerance": 1,
+      "must_contain": ["<phrase that must appear>"],
+      "output_regex": "<structural pattern>",
+      "rubric": "<plain English: what a good output looks like>"
+    }
+  ]
+}
+```
+
+Include at least:
+- One clear-cut case (should definitely trigger the skill's main behavior)
+- One edge case (ambiguous or borderline input)
+- One negative case (input where the skill should NOT trigger / should give a neutral result)
+
+## Step 5: Run evals before accepting
+
+**Do not present the skill as done until evals pass.**
+
+1. Run `./scripts/validate.sh` — must pass with no errors
+2. Run each eval case yourself: execute the skill prompt against each input, judge your own output against the case criteria
+3. Report results to the user:
+   ```
+   Eval Results: X/Y passed
+   - case-id: PASS/FAIL (brief note)
+   ```
+4. If any case fails, fix the prompt or the eval case and re-run
+5. Only after all evals pass, present the skill as ready
+
+## Step 6: Show the user what was created
 
 Print a summary:
 
@@ -92,7 +134,10 @@ Created skill: <skill-name>
 Files:
   skills/<skill-name>/manifest.json
   skills/<skill-name>/prompt.md
+  skills/<skill-name>/evals/samples.json
   registry.json (updated)
+
+Evals: X/X passed
 
 To try it: /<skill-name>
 To share it: commit and submit a PR

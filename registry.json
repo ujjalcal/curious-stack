@@ -38,6 +38,15 @@
       "tags": ["meta", "quality", "improvement"],
       "harnesses": ["claude-code", "codex", "generic"],
       "path": "skills/improve-skill"
+    },
+    {
+      "name": "eval-skill",
+      "version": "1.0.0",
+      "description": "Run evals on a skill — tests it against sample inputs, judges output quality, reports pass/fail with scores.",
+      "author": "ujjalcal",
+      "tags": ["meta", "testing", "quality", "eval"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/eval-skill"
     }
   ]
 }

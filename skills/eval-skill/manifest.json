@@ -1,0 +1,10 @@
+{
+  "name": "eval-skill",
+  "version": "1.0.0",
+  "description": "Run evals on a skill — tests it against sample inputs, judges output quality, reports pass/fail with scores.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "prompt.md",
+  "tags": ["meta", "testing", "quality", "eval"]
+}
