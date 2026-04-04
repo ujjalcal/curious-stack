@@ -37,69 +37,57 @@ Deno.serve(async (req) => {
   since.setDate(since.getDate() - days);
   const sinceStr = since.toISOString();
 
-  // Total runs per skill
-  const { data: skillStats } = await supabase
-    .from("telemetry_events")
-    .select("skill")
-    .gte("created_at", sinceStr);
-
-  const skillCounts: Record<string, number> = {};
-  (skillStats || []).forEach((row: any) => {
-    skillCounts[row.skill] = (skillCounts[row.skill] || 0) + 1;
-  });
-
-  // Category breakdown for a specific skill or all
+  // Run all independent queries in parallel
   let categoryQuery = supabase
     .from("telemetry_events")
-    .select("skill, category")
-    .gte("created_at", sinceStr)
-    .not("category", "is", null);
+    .select("skill, category, created_at, session_id")
+    .gte("created_at", sinceStr);
 
   if (skillFilter) {
     categoryQuery = categoryQuery.eq("skill", skillFilter);
   }
 
-  const { data: categoryData } = await categoryQuery;
+  const [eventsResult, installResult] = await Promise.all([
+    categoryQuery,
+    supabase
+      .from("install_events")
+      .select("*", { count: "exact", head: true }),
+  ]);
 
+  const rows = eventsResult.data || [];
+
+  // Aggregate in a single pass over the data
+  const skillCounts: Record<string, number> = {};
   const categories: Record<string, Record<string, number>> = {};
-  (categoryData || []).forEach((row: any) => {
-    if (!categories[row.skill]) categories[row.skill] = {};
-    categories[row.skill][row.category] = (categories[row.skill][row.category] || 0) + 1;
-  });
-
-  // Daily trend
-  const { data: dailyData } = await supabase
-    .from("telemetry_events")
-    .select("created_at")
-    .gte("created_at", sinceStr);
-
   const dailyCounts: Record<string, number> = {};
-  (dailyData || []).forEach((row: any) => {
+  const sessionIds = new Set<string>();
+
+  for (const row of rows) {
+    // Skill counts
+    skillCounts[row.skill] = (skillCounts[row.skill] || 0) + 1;
+
+    // Category breakdown
+    if (row.category) {
+      if (!categories[row.skill]) categories[row.skill] = {};
+      categories[row.skill][row.category] =
+        (categories[row.skill][row.category] || 0) + 1;
+    }
+
+    // Daily trend
     const day = row.created_at.substring(0, 10);
     dailyCounts[day] = (dailyCounts[day] || 0) + 1;
-  });
 
-  // Install count
-  const { count: installCount } = await supabase
-    .from("install_events")
-    .select("*", { count: "exact", head: true });
-
-  // Unique sessions
-  const { data: sessionData } = await supabase
-    .from("telemetry_events")
-    .select("session_id")
-    .gte("created_at", sinceStr)
-    .not("session_id", "is", null);
-
-  const uniqueSessions = new Set(
-    (sessionData || []).map((r: any) => r.session_id)
-  ).size;
+    // Unique sessions
+    if (row.session_id) {
+      sessionIds.add(row.session_id);
+    }
+  }
 
   const response = {
     period_days: days,
-    total_installs: installCount || 0,
+    total_installs: installResult.count || 0,
     total_runs: Object.values(skillCounts).reduce((a, b) => a + b, 0),
-    unique_sessions: uniqueSessions,
+    unique_sessions: sessionIds.size,
     skills: Object.entries(skillCounts)
       .map(([skill, count]) => ({
         skill,

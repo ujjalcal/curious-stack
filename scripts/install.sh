@@ -4,7 +4,7 @@ set -euo pipefail
 # agent-skills — install agent skills into any AI coding harness
 #
 # Remote one-liner:
-#   curl -sL https://raw.githubusercontent.com/ujjalcal/agent-skills/main/scripts/install.sh | bash -s -- <skill-name>
+#   curl -sL https://raw.githubusercontent.com/ujjalcal/curious-stack/main/scripts/install.sh | bash -s -- <skill-name>
 #
 # Local usage:
 #   ./scripts/install.sh <skill-name>              Install a skill
@@ -16,8 +16,8 @@ set -euo pipefail
 #   ./scripts/install.sh --uninstall <skill-name>  Remove an installed skill
 #   ./scripts/install.sh --harness <name>          Target harness (default: auto-detect)
 
-REGISTRY_URL="https://raw.githubusercontent.com/ujjalcal/agent-skills/main/registry.json"
-REGISTRY_REPO="https://github.com/ujjalcal/agent-skills.git"
+REGISTRY_URL="https://raw.githubusercontent.com/ujjalcal/curious-stack/main/registry.json"
+REGISTRY_REPO="https://github.com/ujjalcal/curious-stack.git"
 
 # Defaults
 HARNESS=""
@@ -144,7 +144,7 @@ for s in data['skills']:
 " 2>/dev/null || echo "$registry" | grep -o '"name":"[^"]*"' | sed 's/"name":"//;s/"//'
 
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo -e "Install: ${GREEN}curl -sL https://raw.githubusercontent.com/ujjalcal/agent-skills/main/scripts/install.sh | bash -s -- <skill-name>${NC}"
+  echo -e "Install: ${GREEN}curl -sL https://raw.githubusercontent.com/ujjalcal/curious-stack/main/scripts/install.sh | bash -s -- <skill-name>${NC}"
 }
 
 search_skills() {
@@ -420,7 +420,7 @@ print(m.get('hooks', {}).get('post-install', ''))
 " 2>/dev/null || echo "")
     if [ -n "$post_install" ]; then
       info "Running post-install hook..."
-      (cd "$dest" && eval "$post_install")
+      (cd "$dest" && bash -c "$post_install")
     fi
   fi
 
@@ -521,7 +521,7 @@ print(m.get('hooks', {}).get('pre-uninstall', ''))
 " 2>/dev/null || echo "")
     if [ -n "$pre_uninstall" ]; then
       info "Running pre-uninstall hook..."
-      (cd "$dest" && eval "$pre_uninstall")
+      (cd "$dest" && bash -c "$pre_uninstall")
     fi
   fi
 
@@ -548,7 +548,7 @@ if [ $# -eq 0 ]; then
   echo "  install.sh --harness <name>          Override harness (claude-code|codex|cursor|aider|generic)"
   echo ""
   echo "Remote install (no clone needed):"
-  echo -e "  ${GREEN}curl -sL https://raw.githubusercontent.com/ujjalcal/agent-skills/main/scripts/install.sh | bash -s -- <skill-name>${NC}"
+  echo -e "  ${GREEN}curl -sL https://raw.githubusercontent.com/ujjalcal/curious-stack/main/scripts/install.sh | bash -s -- <skill-name>${NC}"
   echo ""
   exit 0
 fi
