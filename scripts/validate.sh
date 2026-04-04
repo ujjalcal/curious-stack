@@ -180,6 +180,72 @@ if not re.match(r'^\d+\.\d+\.\d+$', v):
     else
       warn "SKILL.md may lack structured sections (Steps, Rules, Format)"
     fi
+
+    # Frontmatter name matches manifest name?
+    if [ -f "$manifest" ]; then
+      fm_name=$(head -20 "$prompt" | grep '^name:' | head -1 | sed 's/^name:[[:space:]]*//')
+      mf_name=$(python3 -c "import json; print(json.load(open('$manifest'))['name'])" 2>/dev/null || echo "")
+      if [ -n "$fm_name" ] && [ -n "$mf_name" ]; then
+        if [ "$fm_name" = "$mf_name" ]; then
+          pass "SKILL.md frontmatter name matches manifest"
+        else
+          fail "SKILL.md frontmatter name '$fm_name' != manifest name '$mf_name'"
+        fi
+      fi
+
+      # Frontmatter description matches manifest description?
+      fm_desc=$(head -20 "$prompt" | grep '^description:' | head -1 | sed 's/^description:[[:space:]]*//')
+      mf_desc=$(python3 -c "import json; print(json.load(open('$manifest'))['description'])" 2>/dev/null || echo "")
+      if [ -n "$fm_desc" ] && [ -n "$mf_desc" ]; then
+        if [ "$fm_desc" = "$mf_desc" ]; then
+          pass "SKILL.md frontmatter description matches manifest"
+        else
+          warn "SKILL.md frontmatter description differs from manifest"
+        fi
+      fi
+    fi
+
+    # Referenced files exist?
+    ref_files=$(grep -oE '`(references/[^`]+|scripts/[^`]+|evals/[^`]+)`' "$prompt" 2>/dev/null | tr -d '`' | sort -u || true)
+    if [ -n "$ref_files" ]; then
+      while IFS= read -r ref; do
+        # Skip template paths like skills/<name>/evals/ or results/latest.json
+        if echo "$ref" | grep -qE '<|results/latest'; then
+          continue
+        fi
+        if [ -e "$REPO_ROOT/$ref" ]; then
+          pass "referenced file exists: $ref"
+        else
+          fail "referenced file missing: $ref"
+        fi
+      done <<< "$ref_files"
+    fi
+
+    # No inline telemetry instructions (should be in infra, not skills)?
+    # Skip usage-dashboard — reading telemetry is its purpose.
+    if [ "$name" != "usage-dashboard" ]; then
+      if grep -qi 'telemetry-ingest\|telemetry_endpoint\|POST.*telemetry' "$prompt" 2>/dev/null; then
+        fail "SKILL.md contains inline telemetry instructions (move to infra)"
+      fi
+    fi
+  fi
+
+  # Manifest description matches registry description?
+  if [ -f "$manifest" ] && [ -f "$REGISTRY" ]; then
+    mf_desc=$(python3 -c "import json; print(json.load(open('$manifest'))['description'])" 2>/dev/null || echo "")
+    reg_desc=$(python3 -c "
+import json
+data = json.load(open('$REGISTRY'))
+s = next((x for x in data.get('skills', []) if x['name'] == '$name'), None)
+print(s['description'] if s else '')
+" 2>/dev/null || echo "")
+    if [ -n "$mf_desc" ] && [ -n "$reg_desc" ]; then
+      if [ "$mf_desc" = "$reg_desc" ]; then
+        pass "manifest description matches registry"
+      else
+        warn "manifest description differs from registry.json"
+      fi
+    fi
   fi
 
   # Evals exist?

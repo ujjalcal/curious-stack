@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Restore normal install by removing dev symlinks.
+# If backups exist (.bak), restores them.
+#
+# Usage: bin/dev-teardown [--harness claude-code|codex|cursor]
+
+BOLD='\033[1m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+HARNESS="${1:-claude-code}"
+
+case "$HARNESS" in
+  claude-code|claude) SKILLS_ROOT="$HOME/.claude/skills" ;;
+  codex)              SKILLS_ROOT="$HOME/.codex/skills" ;;
+  cursor)             SKILLS_ROOT="$HOME/.cursor/skills" ;;
+  *)                  SKILLS_ROOT="$HOME/.claude/skills" ;;
+esac
+
+echo ""
+echo -e "${BOLD}curious-stack${NC} dev teardown"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+REMOVED=0
+for skill_dir in "$REPO_ROOT"/skills/*/; do
+  [ -d "$skill_dir" ] || continue
+  name=$(basename "$skill_dir")
+  target="$SKILLS_ROOT/$name"
+
+  if [ -L "$target" ]; then
+    rm -f "$target"
+    echo -e "  ${YELLOW}unlinked${NC} /$name"
+    REMOVED=$((REMOVED + 1))
+
+    # Restore backup if it exists
+    if [ -d "$target.bak" ]; then
+      mv "$target.bak" "$target"
+      echo -e "  ${GREEN}restored${NC} $target from backup"
+    fi
+  fi
+done
+
+# Clear dev mode state
+rm -f "$HOME/.agent-skills/.dev-mode"
+
+echo ""
+echo -e "${GREEN}Dev mode deactivated.${NC} $REMOVED symlinks removed."
+echo -e "  Run ${BOLD}./setup${NC} to reinstall normally."
+echo ""

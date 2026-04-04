@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Dev mode: symlink repo skills into Claude Code's discovery path
+# for live editing. Changes to SKILL.md are picked up immediately.
+#
+# Usage: bin/dev-setup [--harness claude-code|codex|cursor]
+
+BOLD='\033[1m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+HARNESS="${1:-claude-code}"
+
+case "$HARNESS" in
+  claude-code|claude) SKILLS_ROOT="$HOME/.claude/skills" ;;
+  codex)              SKILLS_ROOT="$HOME/.codex/skills" ;;
+  cursor)             SKILLS_ROOT="$HOME/.cursor/skills" ;;
+  *)                  SKILLS_ROOT="$HOME/.claude/skills" ;;
+esac
+
+mkdir -p "$SKILLS_ROOT"
+
+echo ""
+echo -e "${BOLD}curious-stack${NC} dev mode"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+LINKED=0
+for skill_dir in "$REPO_ROOT"/skills/*/; do
+  [ -d "$skill_dir" ] || continue
+  name=$(basename "$skill_dir")
+  target="$SKILLS_ROOT/$name"
+
+  # Back up existing non-symlink install
+  if [ -d "$target" ] && [ ! -L "$target" ]; then
+    mv "$target" "$target.bak"
+    echo -e "  ${YELLOW}backed up${NC} $target → $target.bak"
+  fi
+
+  # Remove stale symlink
+  [ -L "$target" ] && rm -f "$target"
+
+  ln -s "${skill_dir%/}" "$target"
+  echo -e "  ${GREEN}linked${NC} /$name → $skill_dir"
+  LINKED=$((LINKED + 1))
+done
+
+# Save dev mode state
+mkdir -p "$HOME/.agent-skills"
+echo "$REPO_ROOT" > "$HOME/.agent-skills/.dev-mode"
+
+echo ""
+echo -e "${GREEN}Dev mode active.${NC} $LINKED skills linked."
+echo -e "  Edit skills in: ${BOLD}$REPO_ROOT/skills/${NC}"
+echo -e "  Changes are picked up immediately."
+echo -e "  Run ${BOLD}bin/dev-teardown${NC} to restore normal install."
+echo ""
