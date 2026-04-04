@@ -59,6 +59,6 @@ create policy "anon_insert_installs" on install_events for insert to anon with c
 create policy "anon_read_daily" on telemetry_daily for select to anon using (true);
 
 -- Service role can do everything
-create policy "service_all_events" on telemetry_events for all to service_role using (true);
-create policy "service_all_daily" on telemetry_daily for all to service_role using (true);
-create policy "service_all_installs" on install_events for all to service_role using (true);
+create policy "service_all_events" on telemetry_events for all to service_role using (true) with check (true);
+create policy "service_all_daily" on telemetry_daily for all to service_role using (true) with check (true);
+create policy "service_all_installs" on install_events for all to service_role using (true) with check (true);
