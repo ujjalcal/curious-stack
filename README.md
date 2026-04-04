@@ -1,41 +1,10 @@
 # curious-stack
 
-> Prompts are ephemeral. Skills compound.
-
----
-
-## The shift
-
-Three phases. Same arc as every programming abstraction before it.
-
-**Prompt engineering (2022–2023)** — ephemeral, lives in your clipboard,
-can't be versioned or shared.
-
-**Tool use / function calling (2023–2024)** — atomic. Executes and returns.
-No judgment encoded.
-
-**Skill engineering (2025–present)** — a bundle: instructions, workflow
-guidance, decision criteria, reference context. Loaded dynamically when
-relevant. Reusable. Versionable. Shareable across Claude Code, Cursor,
-Codex CLI, Gemini CLI, and a dozen others.
-
-Prompts are expressions. Skills are functions. You wouldn't build a
-codebase out of one-liners in a REPL.
-
-Skills are the next programming language. `curious-stack` is a working
-demonstration of that — and a playground to build your own.
-
----
-
-## See it work
-
 ```
 /ai-slop-detector
 ```
 
-**Input:** paste any LinkedIn post, PR description, or technical doc.
-
-**Output:**
+Paste any LinkedIn post, PR description, or technical doc. Get this back:
 
 ```
 VERDICT: Pure Slop
@@ -53,6 +22,13 @@ example and work backwards to the argument.
 ```
 
 Four seconds. That's what a skill does.
+
+> Prompts are ephemeral. Skills compound.
+
+A skill is a markdown file with instructions, decision criteria, and an
+output contract. Reusable. Versionable. Works across Claude Code, Cursor,
+Codex CLI, Gemini CLI. `curious-stack` is a playground to use them and
+build your own.
 
 ---
 
