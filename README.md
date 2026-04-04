@@ -7,13 +7,13 @@ Skills that make AI coding agents smarter. Paste one line, your agent does the r
 Copy the block for your agent. Paste it into a new chat. That's it.
 
 **Claude Code:**
-> Install agent-skills: run `git clone --depth 1 https://github.com/ujjalcal/agent-skills.git ~/.claude/skills/agent-skills && cd ~/.claude/skills/agent-skills && ./setup` then add an "Agent Skills" section to CLAUDE.md listing the available skills: /ai-slop-detector, /upgrade-skills, /create-skill, /improve-skill, /eval-skill, /usage-dashboard
+> Install agent-skills: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.claude/skills/agent-skills && cd ~/.claude/skills/agent-skills && ./setup` then add an "Agent Skills" section to CLAUDE.md listing the available skills: /ai-slop-detector, /upgrade-skills, /create-skill, /improve-skill, /eval-skill, /usage-dashboard
 
 **Codex:**
-> Install agent-skills: run `git clone --depth 1 https://github.com/ujjalcal/agent-skills.git ~/.codex/skills/agent-skills && cd ~/.codex/skills/agent-skills && ./setup --host codex` then add an "Agent Skills" section to AGENTS.md listing the available skills: /ai-slop-detector, /upgrade-skills, /create-skill, /improve-skill, /eval-skill, /usage-dashboard
+> Install agent-skills: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.codex/skills/agent-skills && cd ~/.codex/skills/agent-skills && ./setup --host codex` then add an "Agent Skills" section to AGENTS.md listing the available skills: /ai-slop-detector, /upgrade-skills, /create-skill, /improve-skill, /eval-skill, /usage-dashboard
 
 **Cursor / Windsurf / Other:**
-> Install agent-skills: run `git clone --depth 1 https://github.com/ujjalcal/agent-skills.git .agent-skills` then read the skills in `.agent-skills/skills/*/SKILL.md` and follow them when asked.
+> Install agent-skills: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git .agent-skills` then read the skills in `.agent-skills/skills/*/SKILL.md` and follow them when asked.
 
 Setup installs user skills by default. Add `--dev` to also include developer skills (create, improve, eval, dashboard).
 
@@ -46,6 +46,14 @@ Each skill lives in `skills/<name>/` with three files:
 - **evals/samples.json** — Test cases for quality assurance
 
 Skills are tested with a three-tier judgment engine: deterministic checks (regex, substrings), fuzzy matching (token overlap), and optional LLM-as-judge scoring. See [skill-writing-guide.md](references/skill-writing-guide.md) for authoring details.
+
+## Uninstall
+
+**Claude Code:** `rm -rf ~/.claude/skills/agent-skills` and remove the skill references from `CLAUDE.md`.
+
+**Codex:** `rm -rf ~/.codex/skills/agent-skills` and remove the skill references from `AGENTS.md`.
+
+**Cursor / Windsurf / Other:** `rm -rf .agent-skills`
 
 ## Privacy
 

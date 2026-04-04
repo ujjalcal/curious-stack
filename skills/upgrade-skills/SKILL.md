@@ -24,7 +24,7 @@ When the user runs `/upgrade-skills` or asks to upgrade agent-skills, follow thi
    ```
    If it's not a git repo (vendored copy), pull from the global install or re-clone:
    ```bash
-   git clone --depth 1 https://github.com/ujjalcal/agent-skills.git /tmp/agent-skills-update
+   git clone --depth 1 https://github.com/ujjalcal/curious-stack.git /tmp/agent-skills-update
    cp -Rf /tmp/agent-skills-update/skills/* <install-path>/skills/
    cp /tmp/agent-skills-update/registry.json <install-path>/registry.json
    rm -rf /tmp/agent-skills-update

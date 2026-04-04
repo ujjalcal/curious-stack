@@ -5,8 +5,8 @@
 // Returns: { "latest": "1.2.0", "has_update": true, "new_skills": ["new-skill-name"] }
 
 const REGISTRY_URLS = [
-  "https://raw.githubusercontent.com/ujjalcal/agent-skills/main/registry.json",
-  "https://raw.githubusercontent.com/ujjalcal/agent-skills/claude/agent-skills-marketplace-WBDUT/registry.json",
+  "https://raw.githubusercontent.com/ujjalcal/curious-stack/main/registry.json",
+  "https://raw.githubusercontent.com/ujjalcal/curious-stack/claude/agent-skills-marketplace-WBDUT/registry.json",
 ];
 
 const corsHeaders = {
