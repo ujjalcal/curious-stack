@@ -136,7 +136,49 @@ fi
 
 chmod +x "$SCRIPT_DIR/scripts/"*.sh "$SCRIPT_DIR/scripts/"*.py 2>/dev/null || true
 chmod +x "$SCRIPT_DIR/scripts/runners/"*.sh 2>/dev/null || true
+chmod +x "$SCRIPT_DIR/scripts/hooks/"*.sh 2>/dev/null || true
 chmod +x "$SCRIPT_DIR/setup" 2>/dev/null || true
+
+# ── Register telemetry hook ──────────────────────────────────────────
+
+HOOK_SCRIPT="$SCRIPT_DIR/scripts/hooks/log-telemetry.sh"
+if [ "$HARNESS" = "claude-code" ]; then
+  SETTINGS_FILE="$HOME/.claude/settings.json"
+  python3 -c "
+import json, os
+
+settings_file = '$SETTINGS_FILE'
+hook_cmd = '$HOOK_SCRIPT'
+
+# Read existing settings or start fresh
+if os.path.isfile(settings_file):
+    with open(settings_file) as f:
+        settings = json.load(f)
+else:
+    settings = {}
+
+# Ensure hooks.PostToolUse exists
+hooks = settings.setdefault('hooks', {})
+post_hooks = hooks.setdefault('PostToolUse', [])
+
+# Check if our hook is already registered
+already = any(
+    any(h.get('command') == hook_cmd for h in entry.get('hooks', []))
+    for entry in post_hooks
+)
+
+if not already:
+    post_hooks.append({
+        'matcher': 'Skill',
+        'hooks': [{
+            'type': 'command',
+            'command': hook_cmd
+        }]
+    })
+    with open(settings_file, 'w') as f:
+        json.dump(settings, f, indent=2)
+" 2>/dev/null && echo -e "  Hook:      ${GREEN}registered${NC} (PostToolUse → telemetry)" || true
+fi
 
 # ── Create symlinks for skill discovery ──────────────────────────────
 
