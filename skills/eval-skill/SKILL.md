@@ -9,7 +9,7 @@ argument-hint: "<skill-name>"
 
 When the user runs `/eval-skill` or asks to evaluate/test a skill, follow this process.
 
-**Before starting**, read `references/skill-writing-guide.md` in the agent-skills repo root for the eval case schema, three-tier judgment system, and test writing guidelines.
+**Before starting**, read `references/skill-writing-guide.md` in the curious-stack repo root for the eval case schema, three-tier judgment system, and test writing guidelines.
 
 ## Step 1: Pick the Skill
 

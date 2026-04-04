@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# agent-skills — install agent skills into any AI coding harness
+# curious-stack — install agent skills into any AI coding harness
 #
 # Remote one-liner:
 #   curl -sL https://raw.githubusercontent.com/ujjalcal/curious-stack/main/scripts/install.sh | bash -s -- <skill-name>
@@ -21,7 +21,7 @@ REGISTRY_REPO="https://github.com/ujjalcal/curious-stack.git"
 
 # Defaults
 HARNESS=""
-SKILLS_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/agent-skills"
+SKILLS_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/curious-stack"
 
 # Colors
 RED='\033[0;31m'
@@ -78,7 +78,7 @@ get_install_dir() {
     codex)        echo ".codex/skills" ;;
     cursor)       echo ".cursor/skills" ;;
     aider)        echo ".aider/skills" ;;
-    generic)      echo ".agent-skills" ;;
+    generic)      echo ".curious-stack" ;;
   esac
 }
 
@@ -535,7 +535,7 @@ print(m.get('hooks', {}).get('pre-uninstall', ''))
 
 if [ $# -eq 0 ]; then
   echo ""
-  echo -e "${BOLD}agent-skills${NC} — install agent skills into any AI coding harness"
+  echo -e "${BOLD}curious-stack${NC} — install agent skills into any AI coding harness"
   echo ""
   echo "Usage:"
   echo "  install.sh <skill-name>              Install a skill (auto-detects harness)"

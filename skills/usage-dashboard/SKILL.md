@@ -10,7 +10,7 @@ When the user runs `/usage-dashboard` or asks about skill usage, read the teleme
 
 ## Step 1: Read telemetry data
 
-Read `~/.agent-skills/telemetry.jsonl`. Each line is a JSON event. If the file doesn't exist or is empty, say "No usage data yet. Use some skills and come back!"
+Read `~/.curious-stack/telemetry.jsonl`. Each line is a JSON event. If the file doesn't exist or is empty, say "No usage data yet. Use some skills and come back!"
 
 ## Step 2: Analyze and present
 
@@ -59,7 +59,7 @@ Based on the data, suggest:
 - Eval cases that should be added based on real-world input lengths and outcome distributions
 
 ## Rules
-- Only read from `~/.agent-skills/telemetry.jsonl` — never from any other location
+- Only read from `~/.curious-stack/telemetry.jsonl` — never from any other location
 - If telemetry is disabled (`config.json` has `telemetry: false`), tell the user telemetry is off and offer to enable it
 - Present data visually — tables and percentages, not raw JSON
 - Highlight actionable insights, not just numbers

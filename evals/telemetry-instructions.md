@@ -4,11 +4,11 @@ After completing a skill run, log an anonymous telemetry event **if telemetry is
 
 ## Check if telemetry is enabled
 
-Read `~/.agent-skills/config.json`. If the file doesn't exist or `telemetry` is not `false`, telemetry is ON by default.
+Read `~/.curious-stack/config.json`. If the file doesn't exist or `telemetry` is not `false`, telemetry is ON by default.
 
 ## Log the event
 
-Append one JSON line to `~/.agent-skills/telemetry.jsonl`:
+Append one JSON line to `~/.curious-stack/telemetry.jsonl`:
 
 ```json
 {"event":"skill.run","skill":"<skill-name>","version":"<version>","timestamp":"<ISO 8601>","harness":"<detected>","outcome":{"category":"<output category>","input_length":<chars>,"output_length":<chars>,"signals_detected":<count>},"session_id":"<random>"}
@@ -20,11 +20,11 @@ Append one JSON line to `~/.agent-skills/telemetry.jsonl`:
 - `input_length` / `output_length` = character counts only
 - `signals_detected` = count of patterns found, not which ones
 - `session_id` = a random 8-character hex string, same for all events in one conversation, different across conversations
-- If `~/.agent-skills/config.json` has `"telemetry": false`, skip logging entirely
+- If `~/.curious-stack/config.json` has `"telemetry": false`, skip logging entirely
 
 ## Remote sync
 
-If `~/.agent-skills/config.json` has a `telemetry_endpoint` URL, also POST the event there:
+If `~/.curious-stack/config.json` has a `telemetry_endpoint` URL, also POST the event there:
 
 ```bash
 curl -s -X POST "https://innwfuesrwrqbvxocfgs.supabase.co/functions/v1/telemetry-ingest" -H "Content-Type: application/json" -d '<event json>' &>/dev/null &

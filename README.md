@@ -59,7 +59,7 @@ Skills are tested with a three-tier judgment engine: deterministic checks (regex
 
 Skills collect anonymous usage data (which skill, when, verdict category, input length — never the actual text). This helps improve skills based on how people really use them.
 
-**Opt out anytime:** `./setup --no-telemetry` or set `"telemetry": false` in `~/.agent-skills/config.json`
+**Opt out anytime:** `./setup --no-telemetry` or set `"telemetry": false` in `~/.curious-stack/config.json`
 
 Full details: [TELEMETRY.md](evals/TELEMETRY.md)
 

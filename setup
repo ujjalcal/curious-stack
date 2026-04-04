@@ -59,7 +59,7 @@ echo -e "  Skills:   ${GREEN}$SKILL_COUNT${NC}"
 
 # ── Telemetry config ──────────────────────────────────────────────────
 
-CONFIG_DIR="$HOME/.agent-skills"
+CONFIG_DIR="$HOME/.curious-stack"
 CONFIG_FILE="$CONFIG_DIR/config.json"
 
 mkdir -p "$CONFIG_DIR"

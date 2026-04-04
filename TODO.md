@@ -9,7 +9,7 @@
 
 - **Skill templates (.tmpl)** — Generate SKILL.md from templates instead of hand-writing. Enables injecting shared content (preamble, telemetry, formatting) automatically. See how gstack uses `SKILL.md.tmpl` + `bun run gen:skill-docs`.
 - **Shared preamble/ethos injection** — Common principles injected into every skill's preamble automatically. Ensures consistent tone, behavior, and quality bar without copy-pasting.
-- **Operational learnings (per-project JSONL)** — After each skill session, log what went wrong (CLI errors, wrong approaches, project quirks) to `~/.agent-skills/projects/{slug}/learnings.jsonl`. Future skill runs consult this file. Skills get smarter on your codebase over time.
+- **Operational learnings (per-project JSONL)** — After each skill session, log what went wrong (CLI errors, wrong approaches, project quirks) to `~/.curious-stack/projects/{slug}/learnings.jsonl`. Future skill runs consult this file. Skills get smarter on your codebase over time.
 
 ## Done (this session)
 

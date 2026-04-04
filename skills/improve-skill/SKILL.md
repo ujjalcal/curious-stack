@@ -9,7 +9,7 @@ argument-hint: "<skill-name>"
 
 When the user runs `/improve-skill` or asks to improve an existing skill, follow this process.
 
-**Before starting**, read `references/skill-writing-guide.md` in the agent-skills repo root. It defines the quality bar, writing principles, and eval format. All changes must conform to it.
+**Before starting**, read `references/skill-writing-guide.md` in the curious-stack repo root. It defines the quality bar, writing principles, and eval format. All changes must conform to it.
 
 ## Step 1: Pick the Skill
 
