@@ -4,8 +4,10 @@
 //
 // Returns: { "latest": "1.2.0", "has_update": true, "new_skills": ["new-skill-name"] }
 
-const REGISTRY_URL =
-  "https://raw.githubusercontent.com/ujjalcal/agent-skills/main/registry.json";
+const REGISTRY_URLS = [
+  "https://raw.githubusercontent.com/ujjalcal/agent-skills/main/registry.json",
+  "https://raw.githubusercontent.com/ujjalcal/agent-skills/claude/agent-skills-marketplace-WBDUT/registry.json",
+];
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,8 +34,16 @@ Deno.serve(async (req) => {
     .filter(Boolean);
 
   try {
-    const resp = await fetch(REGISTRY_URL);
-    if (!resp.ok) {
+    let registry = null;
+    for (const url of REGISTRY_URLS) {
+      const resp = await fetch(url);
+      if (resp.ok) {
+        registry = await resp.json();
+        break;
+      }
+    }
+
+    if (!registry) {
       return new Response(
         JSON.stringify({ error: "Could not fetch registry" }),
         {
@@ -42,8 +52,6 @@ Deno.serve(async (req) => {
         }
       );
     }
-
-    const registry = await resp.json();
     const latestVersion = registry.version || "0.0.0";
     const registrySkills = (registry.skills || []).map(
       (s: any) => s.name
