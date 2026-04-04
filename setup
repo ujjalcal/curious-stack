@@ -2,21 +2,24 @@
 set -euo pipefail
 
 # agent-skills setup
-# Detects install location and harness, wires everything up.
+# Detects install location and harness, configures telemetry, wires everything up.
 
 BOLD='\033[1m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOST=""
+NO_TELEMETRY=false
 
-# Parse --host flag
+# Parse flags
 while [ $# -gt 0 ]; do
   case "$1" in
     --host) HOST="${2:-}"; shift 2 ;;
     --host=*) HOST="${1#--host=}"; shift ;;
+    --no-telemetry) NO_TELEMETRY=true; shift ;;
     *) shift ;;
   esac
 done
@@ -47,11 +50,68 @@ echo -e "  Location: ${GREEN}$SCRIPT_DIR${NC}"
 SKILL_COUNT=$(find "$SCRIPT_DIR/skills" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l)
 echo -e "  Skills:   ${GREEN}$SKILL_COUNT${NC}"
 
-# Make scripts executable
-chmod +x "$SCRIPT_DIR/scripts/install.sh" 2>/dev/null || true
+# ── Telemetry config ──────────────────────────────────────────────────
+
+CONFIG_DIR="$HOME/.agent-skills"
+CONFIG_FILE="$CONFIG_DIR/config.json"
+
+mkdir -p "$CONFIG_DIR"
+
+if [ ! -f "$CONFIG_FILE" ]; then
+  # First install — create config
+  if [ "$NO_TELEMETRY" = "true" ]; then
+    echo '{"telemetry": false, "harness": "'$HARNESS'"}' | python3 -c "import json,sys; json.dump(json.load(sys.stdin), open('$CONFIG_FILE','w'), indent=2)" 2>/dev/null || echo '{"telemetry": false}' > "$CONFIG_FILE"
+    echo -e "  Telemetry: ${YELLOW}off${NC}"
+  else
+    echo '{"telemetry": true, "harness": "'$HARNESS'"}' | python3 -c "import json,sys; json.dump(json.load(sys.stdin), open('$CONFIG_FILE','w'), indent=2)" 2>/dev/null || echo '{"telemetry": true}' > "$CONFIG_FILE"
+    echo -e "  Telemetry: ${GREEN}on${NC} (anonymous usage data — opt out with --no-telemetry)"
+  fi
+else
+  # Existing config — respect existing preference
+  TELEMETRY_STATUS=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('telemetry', True))" 2>/dev/null || echo "True")
+  if [ "$NO_TELEMETRY" = "true" ]; then
+    python3 -c "
+import json
+c = json.load(open('$CONFIG_FILE'))
+c['telemetry'] = False
+json.dump(c, open('$CONFIG_FILE','w'), indent=2)
+" 2>/dev/null
+    echo -e "  Telemetry: ${YELLOW}off${NC} (disabled)"
+  elif [ "$TELEMETRY_STATUS" = "False" ]; then
+    echo -e "  Telemetry: ${YELLOW}off${NC}"
+  else
+    echo -e "  Telemetry: ${GREEN}on${NC}"
+  fi
+fi
+
+# Log install event
+if [ "$NO_TELEMETRY" != "true" ]; then
+  TELEMETRY_ON=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('telemetry', True))" 2>/dev/null || echo "True")
+  if [ "$TELEMETRY_ON" = "True" ]; then
+    python3 -c "
+import json, datetime
+event = {
+    'event': 'skill.install',
+    'skill': '_all',
+    'version': '$(python3 -c "import json; print(json.load(open('$SCRIPT_DIR/registry.json')).get('version', '0.0.0'))" 2>/dev/null || echo "0.0.0")',
+    'timestamp': datetime.datetime.utcnow().isoformat() + 'Z',
+    'harness': '$HARNESS',
+    'outcome': {'category': 'install', 'input_length': 0, 'output_length': 0}
+}
+with open('$CONFIG_DIR/telemetry.jsonl', 'a') as f:
+    f.write(json.dumps(event) + '\n')
+" 2>/dev/null || true
+  fi
+fi
+
+# ── Make scripts executable ───────────────────────────────────────────
+
+chmod +x "$SCRIPT_DIR/scripts/"*.sh "$SCRIPT_DIR/scripts/"*.py 2>/dev/null || true
+chmod +x "$SCRIPT_DIR/scripts/runners/"*.sh 2>/dev/null || true
 chmod +x "$SCRIPT_DIR/setup" 2>/dev/null || true
 
-# List available skills
+# ── List available skills ─────────────────────────────────────────────
+
 echo ""
 echo -e "${BOLD}Available skills:${NC}"
 for skill_dir in "$SCRIPT_DIR"/skills/*/; do
@@ -65,17 +125,18 @@ for skill_dir in "$SCRIPT_DIR"/skills/*/; do
   fi
 done
 
-# Platform-specific hints
+# ── Platform-specific hints ───────────────────────────────────────────
+
 echo ""
 case "$HARNESS" in
   claude-code)
     echo -e "${BOLD}Next step:${NC} Add this to your CLAUDE.md:"
     echo ""
     echo "  ## Agent Skills"
+    echo "  After running any skill, log telemetry per the instructions in the skill's prompt."
     for skill_dir in "$SCRIPT_DIR"/skills/*/; do
       [ -d "$skill_dir" ] || continue
       name=$(basename "$skill_dir")
-      # Compute relative path from project root
       rel_path="${SCRIPT_DIR#$PWD/}"
       [ "$rel_path" = "$SCRIPT_DIR" ] && rel_path="$SCRIPT_DIR"
       echo "  When asked to use /$name, follow the instructions in \`$rel_path/skills/$name/prompt.md\`"
@@ -93,5 +154,10 @@ case "$HARNESS" in
 esac
 
 echo ""
-echo -e "${GREEN}Setup complete.${NC} Run ${BOLD}/upgrade-skills${NC} anytime to get the latest."
+echo -e "${GREEN}Setup complete.${NC}"
+echo -e "  Run ${BOLD}/upgrade-skills${NC} to get the latest skills"
+echo -e "  Run ${BOLD}/usage-dashboard${NC} to see how you're using skills"
+echo ""
+echo -e "  Telemetry details: ${BLUE}evals/TELEMETRY.md${NC}"
+echo -e "  Disable anytime:   ${YELLOW}./setup --no-telemetry${NC}"
 echo ""

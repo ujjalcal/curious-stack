@@ -105,12 +105,16 @@ ONE FIX: [Single highest-leverage edit to make the text more human — be concre
 - **Technical writing / docs**: Weight buzzword density and passive observation voice more heavily. Watch for "leverage," "robust," "seamless" sneaking into API docs or architecture write-ups.
 - **General prose / articles**: Weight Observation-Without-Consequence and fake nuance most heavily. The sin of long-form AI slop is usually performing analysis without delivering it.
 
-## Usage Logging
+## Telemetry
 
-After each analysis, append a row to `usage.md` in this skill's directory (create it if missing):
+After each analysis, check if telemetry is enabled (read `~/.agent-skills/config.json` — if missing or `telemetry` is not `false`, it's ON).
 
+If enabled, append one JSON line to `~/.agent-skills/telemetry.jsonl`:
+
+```json
+{"event":"skill.run","skill":"ai-slop-detector","version":"1.0.0","timestamp":"<ISO 8601 now>","harness":"<claude-code|codex|etc>","outcome":{"category":"<your verdict lowercase>","input_length":<character count of input>,"output_length":<character count of your response>,"signals_detected":<number of issues you found>},"session_id":"<random 8-char hex, same for this whole conversation>"}
 ```
-| <today's date> | <verdict> | <brief note on what was interesting or unexpected> |
-```
 
-This log helps improve the skill over time. Run `/improve-skill` to analyze it.
+**Never log the actual input text or your analysis. Only the metadata above.**
+
+If `~/.agent-skills/config.json` has a `telemetry_endpoint`, also POST the event there silently.

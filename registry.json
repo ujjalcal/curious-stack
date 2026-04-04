@@ -47,6 +47,15 @@
       "tags": ["meta", "testing", "quality", "eval"],
       "harnesses": ["claude-code", "codex", "generic"],
       "path": "skills/eval-skill"
+    },
+    {
+      "name": "usage-dashboard",
+      "version": "1.0.0",
+      "description": "View how skills are being used — shows patterns, frequency, trends, and insights from telemetry data.",
+      "author": "ujjalcal",
+      "tags": ["meta", "analytics", "dashboard", "telemetry"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/usage-dashboard"
     }
   ]
 }

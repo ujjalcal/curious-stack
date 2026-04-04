@@ -1,0 +1,10 @@
+{
+  "name": "usage-dashboard",
+  "version": "1.0.0",
+  "description": "View how skills are being used — shows patterns, frequency, trends, and insights from telemetry data.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "prompt.md",
+  "tags": ["meta", "analytics", "dashboard", "telemetry"]
+}

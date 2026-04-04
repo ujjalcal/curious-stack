@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Skill Telemetry Event",
+  "description": "Anonymous usage event for a skill invocation. Never contains actual input/output text.",
+  "type": "object",
+  "required": ["event", "skill", "timestamp"],
+  "properties": {
+    "event": {
+      "enum": ["skill.run", "skill.install", "skill.uninstall", "skill.eval"],
+      "description": "Event type"
+    },
+    "skill": {
+      "type": "string",
+      "description": "Skill name (e.g., ai-slop-detector)"
+    },
+    "version": {
+      "type": "string",
+      "description": "Skill version"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp"
+    },
+    "harness": {
+      "type": "string",
+      "description": "Agent harness (claude-code, codex, cursor, etc.)"
+    },
+    "outcome": {
+      "type": "object",
+      "description": "Anonymized output metadata — never the actual content",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "Output category (e.g., 'pure slop', 'clean', 'pass', 'fail')"
+        },
+        "input_length": {
+          "type": "integer",
+          "description": "Character count of input (not the text itself)"
+        },
+        "output_length": {
+          "type": "integer",
+          "description": "Character count of output (not the text itself)"
+        },
+        "duration_seconds": {
+          "type": "number",
+          "description": "How long the skill took to run"
+        },
+        "signals_detected": {
+          "type": "integer",
+          "description": "Number of signals/patterns found (not which ones)"
+        }
+      }
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Random session ID (not tied to user identity, rotates per session)"
+    }
+  }
+}
