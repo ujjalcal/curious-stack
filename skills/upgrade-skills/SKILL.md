@@ -6,54 +6,56 @@ user-invocable: true
 
 # Upgrade Skills
 
-When the user runs `/upgrade-skills` or asks to upgrade curious-stack, follow this process:
+Upgrade curious-stack to the latest version. Silent and resilient — never expose git internals to the user.
 
-## Steps
+## Process
 
-1. **Detect install locations.** Check both:
-   - **Global**: `~/.claude/skills/curious-stack/` (or `~/.codex/skills/curious-stack/`)
-   - **Project-local**: `.claude/skills/curious-stack/` (or `.codex/skills/curious-stack/`)
-   
-   Report which installs exist.
+1. **Find the install.** Check in order, use the first that exists:
+   - `~/.claude/skills/curious-stack/`
+   - `~/.codex/skills/curious-stack/`
+   - `.claude/skills/curious-stack/`
+   - `.codex/skills/curious-stack/`
 
-2. **Check current version.** Read `registry.json` in each install location and note the current skill count and any version markers.
+   If none found, tell the user to install first and stop.
 
-3. **Pull latest.** For each install location that is a git repo:
+2. **Save current version.** Read `registry.json` from the install and note the version and skill list. Do this silently — do not print the raw JSON.
+
+3. **Replace with latest.** Always use fresh clone — never attempt git pull, rebase, or merge. This avoids all branch/conflict issues:
    ```bash
-   cd <install-path> && git pull origin main
+   git clone --depth 1 https://github.com/ujjalcal/curious-stack.git /tmp/curious-stack-upgrade 2>/dev/null
    ```
-   If it's not a git repo (vendored copy), pull from the global install or re-clone:
+   If clone fails, retry once. If still fails, say "Network error — try again later." and stop.
+
+   Then swap:
    ```bash
-   git clone --depth 1 https://github.com/ujjalcal/curious-stack.git /tmp/curious-stack-update
-   cp -Rf /tmp/curious-stack-update/skills/* <install-path>/skills/
-   cp /tmp/curious-stack-update/registry.json <install-path>/registry.json
-   rm -rf /tmp/curious-stack-update
+   rsync -a --delete --exclude='.git' /tmp/curious-stack-upgrade/ <install-path>/
+   rm -rf /tmp/curious-stack-upgrade
    ```
 
-4. **Sync dual installs.** If both global and project-local exist, sync the newer one to the older one so they match.
+4. **Run setup silently.** Execute `./setup` in the install path. Pass the same flags the user originally used (check `~/.curious-stack/config.json` for harness and telemetry settings). Do not show setup output to the user.
 
-5. **Run setup.** Execute `./setup` in the updated location to re-register everything.
+5. **Show only what changed.** Compare old version/skills to new. Print a clean summary:
 
-6. **Show what changed.** Compare before and after:
-   - New skills added
-   - Skills with version bumps
-   - Skills removed (if any)
-   
-   Format:
    ```
-   Upgraded curious-stack.
-   
-   New skills:
+   curious-stack upgraded: v1.1.0 → v1.2.0
+
+   New:
      + skill-name — description
-   
+
    Updated:
      ~ skill-name v1.0.0 → v1.1.0
-   
-   All X skills up to date.
+
+   Removed:
+     - skill-name
+
+   All X skills installed.
    ```
 
+   If already on latest: `curious-stack is up to date (vX.Y.Z, N skills).`
+
 ## Rules
-- Never delete user modifications to CLAUDE.md or AGENTS.md
-- If git pull fails (dirty working tree), stash changes first, pull, then pop
-- If network fails, retry once, then report the error clearly
-- Always run setup after upgrading so new skills are registered
+
+- **Never show git commands, errors, or output to the user.** All git operations are internal.
+- **Never attempt git pull, rebase, stash, or merge.** Always fresh clone + rsync. This is slower by 2 seconds but eliminates all conflict scenarios.
+- **Never delete user modifications** to CLAUDE.md, AGENTS.md, or `~/.curious-stack/config.json`.
+- If anything goes wrong, say what failed in one sentence. Do not show stack traces or command output.
