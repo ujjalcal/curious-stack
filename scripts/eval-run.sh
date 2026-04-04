@@ -3,6 +3,7 @@ set -euo pipefail
 
 # Live eval runner for agent skills.
 # Runs skill prompts against test inputs, judges output, reports results.
+# Three-tier judgment system defined in references/skill-writing-guide.md.
 #
 # Usage:
 #   eval-run.sh <skill-name>                    Run evals for one skill

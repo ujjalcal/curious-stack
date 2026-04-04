@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # Validate all skills in the registry.
-# Checks: manifest structure, prompt existence, registry consistency, eval coverage.
+# Checks: manifest structure, SKILL.md quality, registry consistency, eval coverage.
+# Quality criteria defined in references/skill-writing-guide.md.
 # Exit 1 on any failure — designed to run as a pre-commit hook or in CI.
 
 RED='\033[0;31m'
@@ -148,11 +149,29 @@ if not re.match(r'^\d+\.\d+\.\d+$', v):
       fail "SKILL.md is too short ($line_count lines — is it a stub?)"
     fi
 
-    # Has a heading?
-    if head -5 "$prompt" | grep -q '^#'; then
-      pass "SKILL.md starts with a heading"
+    # Has YAML frontmatter?
+    if head -1 "$prompt" | grep -q '^---'; then
+      pass "SKILL.md has YAML frontmatter"
+      # Check for required frontmatter fields (name, description)
+      if head -20 "$prompt" | grep -q '^name:'; then
+        pass "frontmatter has name field"
+      else
+        fail "SKILL.md frontmatter missing 'name' field"
+      fi
+      if head -20 "$prompt" | grep -q '^description:'; then
+        pass "frontmatter has description field"
+      else
+        fail "SKILL.md frontmatter missing 'description' field"
+      fi
     else
-      warn "SKILL.md has no heading in first 5 lines"
+      fail "SKILL.md missing YAML frontmatter (see references/skill-writing-guide.md)"
+    fi
+
+    # Has a heading?
+    if grep -q '^# ' "$prompt"; then
+      pass "SKILL.md has a heading"
+    else
+      warn "SKILL.md has no heading"
     fi
 
     # Has a steps/process section?

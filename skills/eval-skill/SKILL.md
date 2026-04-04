@@ -1,50 +1,52 @@
 ---
 name: eval-skill
-description: Run eval cases against a skill and report pass/fail with scores
+description: Run eval cases against a skill and report pass/fail with scores. Use when the user wants to test, evaluate, benchmark, or validate a skill's output quality.
 user-invocable: true
 argument-hint: "<skill-name>"
 ---
 
 # Eval Skill
 
-When the user runs `/eval-skill` or asks to evaluate/test a skill, follow this process:
+When the user runs `/eval-skill` or asks to evaluate/test a skill, follow this process.
 
-## Step 1: Pick the skill
+**Before starting**, read `references/skill-writing-guide.md` in the agent-skills repo root for the eval case schema, three-tier judgment system, and test writing guidelines.
 
-Ask which skill to evaluate, or detect it from context. Read:
-1. `skills/<name>/SKILL.md` — the skill prompt
-2. `skills/<name>/evals/*.json` — the eval cases
+## Step 1: Pick the Skill
 
-If no eval cases exist, say so and offer to create some first (use the `/create-skill` pattern for generating eval cases).
+Ask which skill to evaluate, or detect from context. Read:
+1. `skills/<name>/SKILL.md` — the skill instructions
+2. `skills/<name>/evals/samples.json` — the eval cases
 
-## Step 2: Run each eval case
+If no eval cases exist, say so and offer to create some (minimum 3: one clear-cut, one edge case, one negative — see writing guide for details).
+
+## Step 2: Run Each Eval Case
 
 For each case in the evals JSON:
 
 1. Read the `input` field
 2. Execute the skill yourself — follow the instructions in `SKILL.md` as if the user pasted the input
-3. Produce your full output for that input
-4. Then immediately judge your own output against the case criteria:
+3. Produce your full output
+4. Judge your own output using the three-tier system from the writing guide:
 
 **Tier 1 — Deterministic checks:**
-- Does your output match `output_regex` (if set)?
-- Does your output contain everything in `must_contain`?
-- Does your output avoid everything in `must_not_contain`?
-- Does your verdict match `expected_verdict` within `verdict_tolerance`?
-  - Verdict scale: clean=0, mild slop=1, heavy slop=2, pure slop=3
-  - Tolerance of 1 means ±1 level is OK
+- `output_regex` match (if set)
+- `must_contain` — all substrings present
+- `must_not_contain` — no forbidden substrings
+- `expected_verdict` within `verdict_tolerance` on ordinal scale
 
 **Tier 2 — Signal matching:**
-- Did you detect the signals listed in `expected_signals`?
-- Score = fraction detected vs `signal_match_threshold`
+- Signals detected vs `expected_signals`
+- Score = fraction matched vs `signal_match_threshold`
 
-**Tier 3 — Rubric self-check:**
-- If a `rubric` field exists, honestly assess: does your output meet that criteria?
-- Score yourself 1-5 (be honest, not generous)
+**Tier 3 — Rubric self-check (if `rubric` field exists):**
+- Score yourself 1-5 honestly against the rubric
+- Be honest, not generous
 
-## Step 3: Report results
+**Scoring:** 0 if any Tier 1 fails, else 0.4 x verdict + 0.3 x signals + 0.3 x judge
 
-After running ALL cases, produce this report:
+## Step 3: Report Results
+
+After running ALL cases:
 
 ```
 ## Eval Results: <skill-name>
@@ -57,16 +59,16 @@ After running ALL cases, produce this report:
 **Overall score:** 0.XX
 
 ### Failures
-- <case-id>: <what went wrong and why>
+- <case-id>: <what went wrong and why — diagnose per the iteration principles in the writing guide>
 
 ### Observations
 - <anything interesting about the skill's behavior>
 - <edge cases that need more coverage>
 ```
 
-## Step 4: Save results
+## Step 4: Save Results
 
-Write results to `skills/<name>/evals/results/latest.json` in this format:
+Write to `skills/<name>/evals/results/latest.json`:
 
 ```json
 {
@@ -76,28 +78,28 @@ Write results to `skills/<name>/evals/results/latest.json` in this format:
   "cases": [
     {
       "case_id": "<id>",
-      "passed": true/false,
+      "passed": true,
       "your_verdict": "<what you said>",
       "expected_verdict": "<what was expected>",
-      "tier1_passed": true/false,
-      "tier2_score": 0.XX,
-      "tier3_score": N,
-      "avg_score": 0.XX,
-      "notes": "<any observations>"
+      "tier1_passed": true,
+      "tier2_score": 0.85,
+      "tier3_score": 4,
+      "avg_score": 0.82,
+      "notes": "<observations>"
     }
   ],
   "summary": {
-    "total": N,
-    "passed": N,
-    "failed": N,
-    "avg_score": 0.XX
+    "total": 3,
+    "passed": 2,
+    "failed": 1,
+    "avg_score": 0.75
   }
 }
 ```
 
 ## Rules
-- Actually execute the skill on each input. Don't just check the case structure.
-- Be honest in self-scoring. If your output is borderline, say so.
-- If a case fails, explain WHY — is the skill prompt unclear? Is the eval case wrong? Is the input ambiguous?
-- Run ALL cases. Don't stop at the first failure.
-- If the skill has no evals, offer to generate them from the prompt.
+- Actually execute the skill on each input. Don't just check case structure.
+- Be honest in self-scoring. If borderline, say so.
+- If a case fails, diagnose WHY — is the skill unclear? Is the eval case wrong? Is the input ambiguous?
+- Run ALL cases. Don't stop at first failure.
+- If the skill has no evals, offer to generate them following the writing guide.
