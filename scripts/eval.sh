@@ -20,6 +20,8 @@ TARGET="${1:-all}"
 TOTAL=0
 PASSED=0
 FAILED=0
+EVAL_TMPFILE=$(mktemp)
+trap 'rm -f "$EVAL_TMPFILE"' EXIT
 
 echo ""
 echo -e "${BOLD}Running skill evals${NC}"
@@ -85,7 +87,7 @@ for i, case in enumerate(cases):
         passed += 1
 
 print(f'RESULTS:{passed}:{failed}')
-" 2>/dev/null > /tmp/eval_output_$$
+" 2>/dev/null > "$EVAL_TMPFILE"
 
   while IFS= read -r line; do
     if [[ "$line" == RESULTS:* ]]; then
@@ -98,8 +100,7 @@ print(f'RESULTS:{passed}:{failed}')
     else
       echo "$line"
     fi
-  done < /tmp/eval_output_$$
-  rm -f /tmp/eval_output_$$
+  done < "$EVAL_TMPFILE"
 }
 
 # Find and run evals

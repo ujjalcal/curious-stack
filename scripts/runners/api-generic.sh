@@ -10,30 +10,28 @@ set -euo pipefail
 
 PROMPT_FILE="$1"
 INPUT="$2"
-PROMPT=$(cat "$PROMPT_FILE")
 
-MODEL="${EVAL_MODEL:-claude-sonnet-4-20250514}"
-
-FULL_PROMPT="${PROMPT}
-
----
-
-Analyze this text:
-
-${INPUT}"
+# Build JSON payload safely via python3, passing all values through env vars
+# to avoid shell injection from filenames or prompt content.
+build_payload() {
+  local model="$1"
+  SKILL_PROMPT_FILE="$PROMPT_FILE" SKILL_INPUT="$INPUT" SKILL_MODEL="$model" \
+    python3 -c "
+import json, os
+prompt = open(os.environ['SKILL_PROMPT_FILE']).read()
+full = prompt + '\n\n---\n\nAnalyze this text:\n\n' + os.environ['SKILL_INPUT']
+print(json.dumps({
+    'model': os.environ['SKILL_MODEL'],
+    'max_tokens': 1024,
+    'messages': [{'role': 'user', 'content': full}]
+}))
+"
+}
 
 if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
-  # Anthropic API — use python3 to safely build JSON (avoids shell injection)
-  RESPONSE=$(python3 -c "
-import json, sys, subprocess
-prompt = open('$PROMPT_FILE').read() + '\n\n---\n\nAnalyze this text:\n\n' + sys.stdin.read()
-payload = json.dumps({
-    'model': '$MODEL',
-    'max_tokens': 1024,
-    'messages': [{'role': 'user', 'content': prompt}]
-})
-print(payload)
-" <<< "$INPUT" | curl -s https://api.anthropic.com/v1/messages \
+  MODEL="${EVAL_MODEL:-claude-sonnet-4-20250514}"
+
+  RESPONSE=$(build_payload "$MODEL" | curl -s https://api.anthropic.com/v1/messages \
     -H "x-api-key: $ANTHROPIC_API_KEY" \
     -H "anthropic-version: 2023-06-01" \
     -H "content-type: application/json" \
@@ -48,20 +46,10 @@ for block in data.get('content', []):
 "
 
 elif [ -n "${OPENAI_API_KEY:-}" ]; then
-  # OpenAI-compatible API — use python3 to safely build JSON (avoids shell injection)
   OPENAI_BASE="${OPENAI_BASE_URL:-https://api.openai.com/v1}"
   OAI_MODEL="${EVAL_MODEL:-gpt-4o}"
 
-  RESPONSE=$(python3 -c "
-import json, sys
-prompt = open('$PROMPT_FILE').read() + '\n\n---\n\nAnalyze this text:\n\n' + sys.stdin.read()
-payload = json.dumps({
-    'model': '$OAI_MODEL',
-    'max_tokens': 1024,
-    'messages': [{'role': 'user', 'content': prompt}]
-})
-print(payload)
-" <<< "$INPUT" | curl -s "$OPENAI_BASE/chat/completions" \
+  RESPONSE=$(build_payload "$OAI_MODEL" | curl -s "$OPENAI_BASE/chat/completions" \
     -H "Authorization: Bearer $OPENAI_API_KEY" \
     -H "Content-Type: application/json" \
     -d @-)
