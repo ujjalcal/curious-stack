@@ -14,6 +14,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOST=""
 NO_TELEMETRY=false
 
+# Telemetry endpoint — set this after deploying Supabase (see supabase/DEPLOY.md)
+TELEMETRY_ENDPOINT="${AGENT_SKILLS_TELEMETRY_URL:-}"
+
 # Parse flags
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -63,7 +66,14 @@ if [ ! -f "$CONFIG_FILE" ]; then
     echo '{"telemetry": false, "harness": "'$HARNESS'"}' | python3 -c "import json,sys; json.dump(json.load(sys.stdin), open('$CONFIG_FILE','w'), indent=2)" 2>/dev/null || echo '{"telemetry": false}' > "$CONFIG_FILE"
     echo -e "  Telemetry: ${YELLOW}off${NC}"
   else
-    echo '{"telemetry": true, "harness": "'$HARNESS'"}' | python3 -c "import json,sys; json.dump(json.load(sys.stdin), open('$CONFIG_FILE','w'), indent=2)" 2>/dev/null || echo '{"telemetry": true}' > "$CONFIG_FILE"
+    python3 -c "
+import json
+config = {'telemetry': True, 'harness': '$HARNESS'}
+endpoint = '$TELEMETRY_ENDPOINT'
+if endpoint:
+    config['telemetry_endpoint'] = endpoint
+json.dump(config, open('$CONFIG_FILE','w'), indent=2)
+" 2>/dev/null || echo '{"telemetry": true}' > "$CONFIG_FILE"
     echo -e "  Telemetry: ${GREEN}on${NC} (anonymous usage data — opt out with --no-telemetry)"
   fi
 else
