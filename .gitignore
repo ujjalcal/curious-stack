@@ -1,0 +1,9 @@
+# Eval results (generated, not committed)
+**/evals/results/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/

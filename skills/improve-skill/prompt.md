@@ -4,10 +4,11 @@ When the user runs `/improve-skill` or asks to improve an existing skill, follow
 
 ## Step 1: Pick the skill
 
-Ask which skill to improve, or detect it from context. Read three things:
+Ask which skill to improve, or detect it from context. Read these:
 1. `skills/<name>/prompt.md` — the current prompt
 2. `skills/<name>/usage.md` — the usage log (if it exists)
-3. `skills/<name>/evals/` — the test cases (if they exist)
+3. `skills/<name>/evals/*.json` — the test cases (if they exist)
+4. `skills/<name>/evals/results/latest.json` — live eval results (if they exist)
 
 ## Step 2: Analyze
 
@@ -28,6 +29,12 @@ Look for these problems:
 - Gaps in test coverage (input types not tested)
 - Cases where the expected output seems wrong
 - Missing edge cases (empty input, very long input, mixed signals)
+
+**From live eval results** (if `evals/results/latest.json` exists):
+- Cases that consistently fail → the prompt is giving wrong instructions
+- Flaky cases (sometimes pass, sometimes fail) → the prompt is ambiguous at that boundary
+- Low judge scores with passing deterministic checks → output is structurally correct but semantically poor
+- Which tier fails most: Tier 1 (format/structure), Tier 2 (signal detection), Tier 3 (overall quality)
 
 ## Step 3: Suggest changes
 
@@ -63,7 +70,8 @@ If yes:
 2. Add new eval cases to `evals/`
 3. Bump the patch version in `manifest.json` and `registry.json`
 4. Run `./scripts/validate.sh` to confirm everything passes
-5. Run `./scripts/eval.sh <skill-name>` to confirm evals pass
+5. Run `./scripts/eval.sh <skill-name>` to confirm static evals pass
+6. If a runner is available, run `./scripts/eval-run.sh <skill-name>` to run live evals
 
 ## Rules
 - Never rewrite a skill from scratch. Improve incrementally.

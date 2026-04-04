@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Skill Eval Cases",
+  "description": "Test cases for evaluating an agent skill against sample inputs",
+  "type": "object",
+  "required": ["cases"],
+  "properties": {
+    "description": {
+      "type": "string"
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "runs_per_case": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 3,
+          "description": "Number of times to run each case (handles non-determinism)"
+        },
+        "pass_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.67,
+          "description": "Fraction of runs that must pass for a case to pass"
+        },
+        "runner": {
+          "enum": ["auto", "claude-code", "codex", "api"],
+          "default": "auto"
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "default": 60
+        }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["input"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Stable identifier for tracking results across runs"
+          },
+          "description": {
+            "type": "string"
+          },
+          "input": {
+            "type": "string",
+            "minLength": 1
+          },
+          "context": {
+            "type": "object",
+            "description": "Extra context the skill might need"
+          },
+          "expected_verdict": {
+            "type": "string",
+            "description": "Expected verdict (skill-specific, e.g. 'clean', 'pure slop')"
+          },
+          "verdict_tolerance": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3,
+            "default": 0,
+            "description": "Allow ±N levels on ordinal verdict scale"
+          },
+          "expected_signals": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Patterns/signals the skill should detect"
+          },
+          "signal_match_threshold": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.5,
+            "description": "Fraction of expected signals that must be found"
+          },
+          "must_contain": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Substrings that must appear in output"
+          },
+          "must_not_contain": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Substrings that must NOT appear in output"
+          },
+          "output_regex": {
+            "type": "string",
+            "description": "Regex the output must match (structural check)"
+          },
+          "rubric": {
+            "type": "string",
+            "description": "Plain English criteria for LLM-as-judge (costs tokens)"
+          },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "weight": {
+            "type": "number",
+            "default": 1.0
+          }
+        }
+      }
+    }
+  }
+}
