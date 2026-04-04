@@ -80,23 +80,24 @@ Deno.serve(async (req) => {
       .filter((r: any) => r.table === "install_events")
       .map((r: any) => r.row);
 
-    const results = [];
-
+    // Insert into both tables in parallel
+    const insertions = [];
     if (eventRows.length > 0) {
-      const { error } = await supabase
-        .from("telemetry_events")
-        .insert(eventRows);
-      if (error) results.push({ table: "telemetry_events", error: error.message });
+      insertions.push(
+        supabase.from("telemetry_events").insert(eventRows)
+          .then(({ error }) => error ? { table: "telemetry_events", error: error.message } : null)
+      );
     }
-
     if (installRows.length > 0) {
-      const { error } = await supabase
-        .from("install_events")
-        .insert(installRows);
-      if (error) results.push({ table: "install_events", error: error.message });
+      insertions.push(
+        supabase.from("install_events").insert(installRows)
+          .then(({ error }) => error ? { table: "install_events", error: error.message } : null)
+      );
     }
 
-    const hasErrors = results.some((r: any) => r.error);
+    const results = (await Promise.all(insertions)).filter(Boolean);
+
+    const hasErrors = results.length > 0;
 
     return new Response(
       JSON.stringify({

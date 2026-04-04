@@ -62,8 +62,14 @@ Deno.serve(async (req) => {
       (s: string) => !installedSkills.includes(s)
     );
 
-    // Simple semver compare
-    const hasUpdate = latestVersion !== currentVersion;
+    // Semver compare: split into [major, minor, patch] and compare numerically
+    const parseSemver = (v: string) => v.split(".").map(Number);
+    const [lMaj, lMin, lPat] = parseSemver(latestVersion);
+    const [cMaj, cMin, cPat] = parseSemver(currentVersion);
+    const hasUpdate =
+      lMaj > cMaj ||
+      (lMaj === cMaj && lMin > cMin) ||
+      (lMaj === cMaj && lMin === cMin && lPat > cPat);
 
     return new Response(
       JSON.stringify({

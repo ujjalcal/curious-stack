@@ -85,7 +85,9 @@ for i, case in enumerate(cases):
         passed += 1
 
 print(f'RESULTS:{passed}:{failed}')
-" 2>/dev/null | while IFS= read -r line; do
+" 2>/dev/null > /tmp/eval_output_$$
+
+  while IFS= read -r line; do
     if [[ "$line" == RESULTS:* ]]; then
       local p f
       p=$(echo "$line" | cut -d: -f2)
@@ -96,7 +98,8 @@ print(f'RESULTS:{passed}:{failed}')
     else
       echo "$line"
     fi
-  done
+  done < /tmp/eval_output_$$
+  rm -f /tmp/eval_output_$$
 }
 
 # Find and run evals

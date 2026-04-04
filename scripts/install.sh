@@ -420,7 +420,7 @@ print(m.get('hooks', {}).get('post-install', ''))
 " 2>/dev/null || echo "")
     if [ -n "$post_install" ]; then
       info "Running post-install hook..."
-      (cd "$dest" && eval "$post_install")
+      (cd "$dest" && bash -c "$post_install")
     fi
   fi
 
@@ -521,7 +521,7 @@ print(m.get('hooks', {}).get('pre-uninstall', ''))
 " 2>/dev/null || echo "")
     if [ -n "$pre_uninstall" ]; then
       info "Running pre-uninstall hook..."
-      (cd "$dest" && eval "$pre_uninstall")
+      (cd "$dest" && bash -c "$pre_uninstall")
     fi
   fi
 
