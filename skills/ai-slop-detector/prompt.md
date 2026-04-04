@@ -104,3 +104,13 @@ ONE FIX: [Single highest-leverage edit to make the text more human — be concre
 - **LinkedIn posts**: Hard slop threshold is lower — the genre is already compressed, so a single hollow opener or "What do you think?" closer is more damning than in long-form.
 - **Technical writing / docs**: Weight buzzword density and passive observation voice more heavily. Watch for "leverage," "robust," "seamless" sneaking into API docs or architecture write-ups.
 - **General prose / articles**: Weight Observation-Without-Consequence and fake nuance most heavily. The sin of long-form AI slop is usually performing analysis without delivering it.
+
+## Usage Logging
+
+After each analysis, append a row to `usage.md` in this skill's directory (create it if missing):
+
+```
+| <today's date> | <verdict> | <brief note on what was interesting or unexpected> |
+```
+
+This log helps improve the skill over time. Run `/improve-skill` to analyze it.

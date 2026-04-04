@@ -1,0 +1,47 @@
+{
+  "description": "Test cases for the ai-slop-detector skill",
+  "cases": [
+    {
+      "description": "Pure slop — LinkedIn-style AI fluff",
+      "input": "In today's fast-paced world, AI is transforming the way we work. It's no secret that organizations are leveraging cutting-edge technology to unlock new opportunities and empower their teams. The bottom line is that those who embrace this transformative shift will thrive in the new era. What do you think?",
+      "expected_verdict": "pure slop",
+      "expected_signals": ["Hollow openers", "Buzzword density", "Observation-Without-Consequence"],
+      "must_contain": ["In today's fast-paced world", "leveraging", "What do you think"]
+    },
+    {
+      "description": "Heavy slop — fake nuance, hedge stacking",
+      "input": "While AI adoption is certainly important, we must not forget that the human element remains crucial. Perhaps in many ways, the most transformative aspect of this technology is how it potentially empowers teams to collaborate more seamlessly. It could be argued that organizations embracing this shift will see significant benefits across their ecosystem.",
+      "expected_verdict": "heavy slop",
+      "expected_signals": ["False tension", "Hedge stacking", "Buzzword density"],
+      "must_contain": ["While", "must not forget", "Perhaps"]
+    },
+    {
+      "description": "Clean — specific, opinionated, first-person",
+      "input": "I mass-deleted 400 unit tests last Tuesday. They all mocked internal functions so heavily that they tested nothing but their own setup code. Our actual bug rate didn't change. What changed: deploys went from 45 minutes to 12. The team stopped dreading refactors. I was wrong about test coverage metrics for three years.",
+      "expected_verdict": "clean",
+      "expected_signals": [],
+      "must_contain": []
+    },
+    {
+      "description": "Mild slop — mostly fine but some buzzwords",
+      "input": "We migrated our PostgreSQL cluster from Heroku to RDS last month. The migration itself took 6 hours with pg_dump. Two things surprised me: connection pooling with PgBouncer cut our p99 latency from 180ms to 40ms, and we discovered 12 unused indexes eating 8GB of disk. The robust scalability of the new setup has been transformative for our team.",
+      "expected_verdict": "mild slop",
+      "expected_signals": ["Buzzword density"],
+      "must_contain": ["robust", "transformative"]
+    },
+    {
+      "description": "Clean — dense technical writing with friction",
+      "input": "SQLite handles 100k writes/sec on a single node. Most startups don't need Postgres until they have multiple writers or need row-level security. I've shipped three products on SQLite in production. One outgrew it at 2M rows with concurrent writes. The other two are still on SQLite at 50M+ rows. The conventional wisdom about SQLite not being production-ready is just wrong for read-heavy workloads.",
+      "expected_verdict": "clean",
+      "expected_signals": [],
+      "must_contain": []
+    },
+    {
+      "description": "Pure slop — enumeration as substance",
+      "input": "5 Ways AI Will Transform Healthcare:\n1. Improved Diagnostics — AI can help doctors make better diagnoses.\n2. Personalized Treatment — AI enables more personalized care plans.\n3. Operational Efficiency — AI streamlines administrative processes.\n4. Drug Discovery — AI accelerates the development of new medications.\n5. Patient Experience — AI creates more seamless patient interactions.\nThe future of healthcare is truly exciting!",
+      "expected_verdict": "pure slop",
+      "expected_signals": ["Enumeration as substance", "Hollow openers"],
+      "must_contain": ["5 Ways"]
+    }
+  ]
+}

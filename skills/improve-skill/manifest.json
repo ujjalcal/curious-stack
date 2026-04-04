@@ -1,0 +1,10 @@
+{
+  "name": "improve-skill",
+  "version": "1.0.0",
+  "description": "Analyze a skill's usage log and evals to suggest concrete improvements to its prompt.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "prompt.md",
+  "tags": ["meta", "quality", "improvement"]
+}

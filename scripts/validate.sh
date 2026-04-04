@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Validate all skills in the registry.
+# Checks: manifest structure, prompt existence, registry consistency, eval coverage.
+# Exit 1 on any failure — designed to run as a pre-commit hook or in CI.
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+REGISTRY="$REPO_ROOT/registry.json"
+ERRORS=0
+WARNINGS=0
+
+pass() { echo -e "  ${GREEN}pass${NC}  $*"; }
+fail() { echo -e "  ${RED}FAIL${NC}  $*"; ERRORS=$((ERRORS + 1)); }
+warn() { echo -e "  ${YELLOW}warn${NC}  $*"; WARNINGS=$((WARNINGS + 1)); }
+
+echo ""
+echo -e "${BOLD}Validating agent-skills${NC}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# ── 1. Registry checks ───────────────────────────────────────────────
+
+echo ""
+echo -e "${BOLD}Registry${NC}"
+
+if [ ! -f "$REGISTRY" ]; then
+  fail "registry.json not found"
+else
+  # Valid JSON?
+  if python3 -c "import json; json.load(open('$REGISTRY'))" 2>/dev/null; then
+    pass "registry.json is valid JSON"
+  else
+    fail "registry.json is not valid JSON"
+  fi
+
+  # Every skill in registry has a directory?
+  for skill_name in $(python3 -c "
+import json
+data = json.load(open('$REGISTRY'))
+for s in data.get('skills', []):
+    print(s['name'])
+" 2>/dev/null); do
+    skill_dir="$REPO_ROOT/skills/$skill_name"
+    if [ -d "$skill_dir" ]; then
+      pass "registry entry '$skill_name' has matching directory"
+    else
+      fail "registry entry '$skill_name' has no directory at skills/$skill_name/"
+    fi
+  done
+
+  # Every skill directory is in the registry?
+  for skill_dir in "$REPO_ROOT"/skills/*/; do
+    [ -d "$skill_dir" ] || continue
+    name=$(basename "$skill_dir")
+    if python3 -c "
+import json, sys
+data = json.load(open('$REGISTRY'))
+if not any(s['name'] == '$name' for s in data.get('skills', [])):
+    sys.exit(1)
+" 2>/dev/null; then
+      pass "directory '$name' is registered"
+    else
+      fail "directory 'skills/$name/' exists but is not in registry.json"
+    fi
+  done
+fi
+
+# ── 2. Per-skill checks ──────────────────────────────────────────────
+
+for skill_dir in "$REPO_ROOT"/skills/*/; do
+  [ -d "$skill_dir" ] || continue
+  name=$(basename "$skill_dir")
+
+  echo ""
+  echo -e "${BOLD}Skill: $name${NC}"
+
+  manifest="$skill_dir/manifest.json"
+  prompt="$skill_dir/prompt.md"
+  evals_dir="$skill_dir/evals"
+
+  # manifest.json exists and is valid JSON?
+  if [ ! -f "$manifest" ]; then
+    fail "manifest.json missing"
+  elif ! python3 -c "import json; json.load(open('$manifest'))" 2>/dev/null; then
+    fail "manifest.json is not valid JSON"
+  else
+    pass "manifest.json valid"
+
+    # Required fields present?
+    python3 -c "
+import json, sys
+m = json.load(open('$manifest'))
+required = ['name', 'version', 'description', 'author', 'harnesses', 'entry']
+missing = [f for f in required if f not in m]
+if missing:
+    print('MISSING:' + ','.join(missing))
+    sys.exit(1)
+" 2>/dev/null && pass "manifest has all required fields" || fail "manifest missing required fields: $(python3 -c "
+import json
+m = json.load(open('$manifest'))
+required = ['name', 'version', 'description', 'author', 'harnesses', 'entry']
+print(', '.join(f for f in required if f not in m))
+" 2>/dev/null)"
+
+    # Name matches directory?
+    manifest_name=$(python3 -c "import json; print(json.load(open('$manifest'))['name'])" 2>/dev/null || echo "")
+    if [ "$manifest_name" = "$name" ]; then
+      pass "manifest name matches directory"
+    else
+      fail "manifest name '$manifest_name' does not match directory '$name'"
+    fi
+
+    # Version is semver?
+    if python3 -c "
+import json, re, sys
+v = json.load(open('$manifest')).get('version', '')
+if not re.match(r'^\d+\.\d+\.\d+$', v):
+    sys.exit(1)
+" 2>/dev/null; then
+      pass "version is valid semver"
+    else
+      fail "version is not valid semver (expected X.Y.Z)"
+    fi
+
+    # Description under 200 chars?
+    desc_len=$(python3 -c "import json; print(len(json.load(open('$manifest')).get('description', '')))" 2>/dev/null || echo "0")
+    if [ "$desc_len" -le 200 ]; then
+      pass "description length ok ($desc_len chars)"
+    else
+      warn "description is $desc_len chars (keep under 200)"
+    fi
+  fi
+
+  # prompt.md exists and has content?
+  if [ ! -f "$prompt" ]; then
+    fail "prompt.md missing"
+  else
+    line_count=$(wc -l < "$prompt")
+    if [ "$line_count" -gt 5 ]; then
+      pass "prompt.md has content ($line_count lines)"
+    else
+      fail "prompt.md is too short ($line_count lines — is it a stub?)"
+    fi
+
+    # Has a heading?
+    if head -5 "$prompt" | grep -q '^#'; then
+      pass "prompt.md starts with a heading"
+    else
+      warn "prompt.md has no heading in first 5 lines"
+    fi
+
+    # Has a steps/process section?
+    if grep -qi '^\(##\|###\).*\(step\|process\|workflow\|how\|rules\|format\)' "$prompt"; then
+      pass "prompt.md has structured sections"
+    else
+      warn "prompt.md may lack structured sections (Steps, Rules, Format)"
+    fi
+  fi
+
+  # Evals exist?
+  if [ -d "$evals_dir" ] && [ "$(ls -A "$evals_dir" 2>/dev/null)" ]; then
+    eval_count=$(find "$evals_dir" -name '*.json' -o -name '*.yaml' -o -name '*.yml' -o -name '*.md' | wc -l)
+    pass "has $eval_count eval(s)"
+  else
+    warn "no evals found — add evals/ with test cases"
+  fi
+done
+
+# ── Summary ───────────────────────────────────────────────────────────
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if [ "$ERRORS" -gt 0 ]; then
+  echo -e "${RED}${BOLD}$ERRORS error(s)${NC}, $WARNINGS warning(s)"
+  exit 1
+elif [ "$WARNINGS" -gt 0 ]; then
+  echo -e "${GREEN}${BOLD}All checks passed${NC} with $WARNINGS warning(s)"
+  exit 0
+else
+  echo -e "${GREEN}${BOLD}All checks passed${NC}"
+  exit 0
+fi

@@ -1,6 +1,6 @@
 {
   "name": "agent-skills",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Downloadable skills for AI coding agents",
   "skills": [
     {
@@ -29,6 +29,15 @@
       "tags": ["meta", "authoring", "utility"],
       "harnesses": ["claude-code", "codex", "generic"],
       "path": "skills/create-skill"
+    },
+    {
+      "name": "improve-skill",
+      "version": "1.0.0",
+      "description": "Analyze a skill's usage log and evals to suggest concrete improvements to its prompt.",
+      "author": "ujjalcal",
+      "tags": ["meta", "quality", "improvement"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/improve-skill"
     }
   ]
 }

@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Pre-commit hook for agent-skills
+# Runs validation and evals on any changed skills before allowing a commit.
+#
+# Install: cp scripts/pre-commit .git/hooks/pre-commit
+
+REPO_ROOT="$(cd "$(dirname "$0")" && git rev-parse --show-toplevel 2>/dev/null || cd "$(dirname "$0")/.." && pwd)"
+
+echo "Running pre-commit checks..."
+
+# 1. Validate all skills (manifest, prompt, registry consistency)
+"$REPO_ROOT/scripts/validate.sh"
+if [ $? -ne 0 ]; then
+  echo "Validation failed. Fix errors above before committing."
+  exit 1
+fi
+
+# 2. Run evals on changed skills
+CHANGED_SKILLS=$(git diff --cached --name-only | grep '^skills/' | cut -d/ -f2 | sort -u)
+
+if [ -n "$CHANGED_SKILLS" ]; then
+  for skill in $CHANGED_SKILLS; do
+    if [ -d "$REPO_ROOT/skills/$skill/evals" ]; then
+      "$REPO_ROOT/scripts/eval.sh" "$skill"
+      if [ $? -ne 0 ]; then
+        echo "Evals failed for '$skill'. Fix before committing."
+        exit 1
+      fi
+    fi
+  done
+fi
+
+echo "All checks passed."
