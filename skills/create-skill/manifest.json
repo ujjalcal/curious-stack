@@ -1,0 +1,10 @@
+{
+  "name": "create-skill",
+  "version": "1.0.0",
+  "description": "Helps you write a new agent skill from scratch — builds the prompt, manifest, and registry entry from a plain description.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "prompt.md",
+  "tags": ["meta", "authoring", "utility"]
+}

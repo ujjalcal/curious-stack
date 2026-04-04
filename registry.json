@@ -20,6 +20,15 @@
       "tags": ["meta", "upgrade", "utility"],
       "harnesses": ["claude-code", "codex", "generic"],
       "path": "skills/upgrade-skills"
+    },
+    {
+      "name": "create-skill",
+      "version": "1.0.0",
+      "description": "Helps you write a new agent skill from scratch — builds the prompt, manifest, and registry entry from a plain description.",
+      "author": "ujjalcal",
+      "tags": ["meta", "authoring", "utility"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/create-skill"
     }
   ]
 }
