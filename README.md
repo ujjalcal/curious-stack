@@ -28,9 +28,8 @@ Four seconds. That's what a skill does.
 > Prompts are ephemeral. Skills compound.
 
 A skill is a markdown file with instructions, decision criteria, and an
-output contract. Reusable. Versionable. Works across Claude Code, Cursor,
-Codex CLI, Gemini CLI. `curious-stack` is a playground to use them and
-build your own.
+output contract. Reusable. Versionable. `curious-stack` is a playground
+to use them and build your own.
 
 ---
 
@@ -70,14 +69,7 @@ files in `skills/` — the pattern becomes obvious fast.
 
 ## Install
 
-**Claude Code:**
 > Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.claude/skills/curious-stack && cd ~/.claude/skills/curious-stack && ./setup` then add a "curious-stack" section to CLAUDE.md listing the available skills: /llm-ready, /ai-slop-detector, /claim-checker, /jargon-detector, /structure-critic, /tone-audit, /originality-score, /full-review, /feed-scanner, /upgrade-skills
-
-**Codex:**
-> Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.codex/skills/curious-stack && cd ~/.codex/skills/curious-stack && ./setup --host codex` then add a "curious-stack" section to AGENTS.md listing the available skills: /llm-ready, /ai-slop-detector, /claim-checker, /jargon-detector, /structure-critic, /tone-audit, /originality-score, /full-review, /feed-scanner, /upgrade-skills
-
-**Cursor / Windsurf / Other:**
-> Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git .curious-stack` then read the skills in `.curious-stack/skills/*/SKILL.md` and follow them when asked.
 
 Skills are auto-discovered from `~/.claude/skills/`. No import declarations needed.
 
@@ -118,9 +110,7 @@ Run `/upgrade-skills` — it does a clean re-clone, no git conflicts possible.
 
 ## Uninstall
 
-**Claude Code:** `rm -rf ~/.claude/skills/curious-stack` and remove skill references from `CLAUDE.md`.
-
-**Codex:** `rm -rf ~/.codex/skills/curious-stack` and remove skill references from `AGENTS.md`.
+`rm -rf ~/.claude/skills/curious-stack` and remove skill references from `CLAUDE.md`.
 
 **Cursor / Windsurf / Other:** `rm -rf .curious-stack`
 
