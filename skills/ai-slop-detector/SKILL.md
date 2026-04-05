@@ -121,6 +121,26 @@ ONE FIX: [Single highest-leverage edit to make the text more human — be concre
 - Name the pattern precisely — "Observation-Without-Consequence" not "lacks depth."
 - Do not pad the output. The user asked for tight. Stay tight.
 
+## Bias Guard
+
+Score the text blind. Apply the same standard regardless of who wrote it — the user, their friend, their competitor, or a stranger. If the user wrote the text, do not soften the verdict. If the user's text has the same pattern you'd flag in someone else's, flag it.
+
+If you're comparing two texts in the same session, apply the same rubric to both. A pattern is a pattern regardless of authorship. Don't grade on a curve because one text "feels more authentic" — authenticity is a counter-signal, not a pardon.
+
+## Feed Optimization
+
+After the main verdict, add one line:
+
+```
+FEED OPTIMIZATION: [High / Medium / Low]
+```
+
+- **High**: Structure is algorithmically optimized — bullet lists, rhetorical closing questions, both-sides framing, scannable visual breaks. Will perform well in feeds regardless of substance.
+- **Medium**: Some feed-friendly patterns but not fully optimized.
+- **Low**: No feed optimization. May underperform algorithmically but that's not a quality judgment.
+
+This is not part of the slop verdict. A Clean post can have High feed optimization. A Pure Slop post can have Low. They're independent axes. The point: help the user see *why* sloppy posts often outperform good ones.
+
 ## Genre Calibration
 
 Detect the genre first. It changes the scoring:
