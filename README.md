@@ -1,26 +1,24 @@
 # curious-stack
 
 ```
-/llm-ready
+/ai-slop-detector
 ```
 
-Paste any blog post, article, or landing page. Get this back:
+Paste any LinkedIn post, PR description, or technical doc. Get this back:
 
 ```
-TOPIC: AI agent architecture
-AI VISIBILITY: Low
+VERDICT: Pure Slop
 
-REPLACEABILITY: High — an LLM can generate this answer without you
-CITABILITY: 1 quotable claim out of 6 total
-SIGNAL DENSITY: Low — 800 words for one insight buried in paragraph 5
-EXTRACTABILITY: Hard — no clear answer to pull
-AUTHORITY: Derivative — summarizes others' work, no first-hand data
+TOP ISSUES:
+1. Hollow opener — "In a world where AI is reshaping everything..."
+   says nothing. Signals the agent wrote the first sentence.
+2. Observation-Without-Consequence — "Organizations that adapt will
+   thrive" — adapt how? thrive how? Consequence never lands.
+3. Synthetic specificity — "40% productivity gains" with no methodology,
+   no timeframe, no source. Numbers as decoration.
 
-WHY AN LLM WOULD SKIP THIS:
-It can generate the same content without citing you.
-
-ONE FIX: Add your actual deployment data from the Q3 pilot.
-An LLM can't fabricate your numbers — that's citable.
+ONE FIX: Delete the first paragraph. Start with your second concrete
+example and work backwards to the argument.
 ```
 
 Four seconds. That's what a skill does.
@@ -39,8 +37,8 @@ Each skill encodes a different expert judgment about writing.
 
 | Skill | Question it answers |
 |-------|-------------|
-| `/llm-ready` | Will AI cite this? — Checks if your content is citable by ChatGPT, Perplexity, Gemini, or invisible |
 | `/ai-slop-detector` | Is this hollow? — Detects AI-generated writing patterns |
+| `/llm-ready` | Will AI cite this? — Checks if your content is citable by ChatGPT, Perplexity, Gemini, or invisible |
 | `/claim-checker` | Is this backed up? — Finds stats without sources, causal claims without mechanisms |
 | `/jargon-detector` | Would an outsider understand this? — Finds undefined acronyms, in-group assumptions |
 | `/structure-critic` | Does the argument hold together? — Finds buried ledes, thesis drift, section imbalance |
