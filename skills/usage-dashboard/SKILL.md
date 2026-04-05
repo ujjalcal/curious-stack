@@ -63,3 +63,4 @@ Based on the data, suggest:
 - If telemetry is disabled (`config.json` has `telemetry: false`), tell the user telemetry is off and offer to enable it
 - Present data visually — tables and percentages, not raw JSON
 - Highlight actionable insights, not just numbers
+

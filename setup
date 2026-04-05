@@ -147,79 +147,50 @@ chmod +x "$SCRIPT_DIR/scripts/runners/"*.sh 2>/dev/null || true
 chmod +x "$SCRIPT_DIR/scripts/hooks/"*.sh 2>/dev/null || true
 chmod +x "$SCRIPT_DIR/setup" 2>/dev/null || true
 
-# ── Register telemetry hook ──────────────────────────────────────────
+# ── Register hooks ───────────────────────────────────────────────────
 
-HOOK_SCRIPT="$SCRIPT_DIR/scripts/hooks/log-telemetry.sh"
+register_hook() {
+  local hook_cmd="$1"
+  local label="$2"
+  local settings_file="$3"
+
+  python3 -c "
+import json, os
+
+settings_file = '$settings_file'
+hook_cmd = '$hook_cmd'
+
+if os.path.isfile(settings_file):
+    with open(settings_file) as f:
+        settings = json.load(f)
+else:
+    settings = {}
+
+hooks = settings.setdefault('hooks', {})
+post_hooks = hooks.setdefault('PostToolUse', [])
+
+already = any(
+    any(h.get('command') == hook_cmd for h in entry.get('hooks', []))
+    for entry in post_hooks
+)
+
+if not already:
+    post_hooks.append({
+        'matcher': 'Skill',
+        'hooks': [{
+            'type': 'command',
+            'command': hook_cmd
+        }]
+    })
+    with open(settings_file, 'w') as f:
+        json.dump(settings, f, indent=2)
+" 2>/dev/null && echo -e "  Hook:      ${GREEN}registered${NC} (PostToolUse → $label)" || true
+}
+
 if [ "$HARNESS" = "claude-code" ]; then
   SETTINGS_FILE="$HOME/.claude/settings.json"
-  python3 -c "
-import json, os
-
-settings_file = '$SETTINGS_FILE'
-hook_cmd = '$HOOK_SCRIPT'
-
-# Read existing settings or start fresh
-if os.path.isfile(settings_file):
-    with open(settings_file) as f:
-        settings = json.load(f)
-else:
-    settings = {}
-
-# Ensure hooks.PostToolUse exists
-hooks = settings.setdefault('hooks', {})
-post_hooks = hooks.setdefault('PostToolUse', [])
-
-# Check if our hook is already registered
-already = any(
-    any(h.get('command') == hook_cmd for h in entry.get('hooks', []))
-    for entry in post_hooks
-)
-
-if not already:
-    post_hooks.append({
-        'matcher': 'Skill',
-        'hooks': [{
-            'type': 'command',
-            'command': hook_cmd
-        }]
-    })
-    with open(settings_file, 'w') as f:
-        json.dump(settings, f, indent=2)
-" 2>/dev/null && echo -e "  Hook:      ${GREEN}registered${NC} (PostToolUse → telemetry)" || true
-
-  # Register learnings hook
-  LEARNINGS_HOOK="$SCRIPT_DIR/scripts/hooks/log-learnings.sh"
-  python3 -c "
-import json, os
-
-settings_file = '$SETTINGS_FILE'
-hook_cmd = '$LEARNINGS_HOOK'
-
-if os.path.isfile(settings_file):
-    with open(settings_file) as f:
-        settings = json.load(f)
-else:
-    settings = {}
-
-hooks = settings.setdefault('hooks', {})
-post_hooks = hooks.setdefault('PostToolUse', [])
-
-already = any(
-    any(h.get('command') == hook_cmd for h in entry.get('hooks', []))
-    for entry in post_hooks
-)
-
-if not already:
-    post_hooks.append({
-        'matcher': 'Skill',
-        'hooks': [{
-            'type': 'command',
-            'command': hook_cmd
-        }]
-    })
-    with open(settings_file, 'w') as f:
-        json.dump(settings, f, indent=2)
-" 2>/dev/null && echo -e "  Hook:      ${GREEN}registered${NC} (PostToolUse → learnings)" || true
+  register_hook "$SCRIPT_DIR/scripts/hooks/log-telemetry.sh" "telemetry" "$SETTINGS_FILE"
+  register_hook "$SCRIPT_DIR/scripts/hooks/log-learnings.sh" "learnings" "$SETTINGS_FILE"
 fi
 
 # ── Create symlinks for skill discovery ──────────────────────────────

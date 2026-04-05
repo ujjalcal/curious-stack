@@ -88,3 +88,4 @@ To share it: commit and submit a PR
 - Follow all writing principles in `references/skill-writing-guide.md`.
 - Every skill must have evals. No exceptions.
 - Default to all harnesses unless the skill is truly platform-specific.
+

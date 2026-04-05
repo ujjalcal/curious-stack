@@ -103,3 +103,4 @@ Write to `skills/<name>/evals/results/latest.json`:
 - If a case fails, diagnose WHY — is the skill unclear? Is the eval case wrong? Is the input ambiguous?
 - Run ALL cases. Don't stop at first failure.
 - If the skill has no evals, offer to generate them following the writing guide.
+

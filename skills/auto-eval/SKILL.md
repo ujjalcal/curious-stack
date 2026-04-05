@@ -103,3 +103,4 @@ If the user approves (all or specific numbers), merge the new cases into `skills
 - Read existing `skills/<skill-name>/evals/samples.json` first to understand what's already tested.
 - Maximum 5 candidates per run — quality over quantity.
 - If fewer than 5 usage events exist, say "Not enough data yet" and suggest running the skill more.
+

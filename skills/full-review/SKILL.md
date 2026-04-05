@@ -46,14 +46,7 @@ These are defaults. Override if the text clearly needs something else. The routi
 
 ## Step 3: Analyze
 
-For each picked axis, run the full analysis as described in that skill's SKILL.md. You have the complete detection criteria internalized:
-
-- **Substance**: Hard slop signals, soft slop signals, counter-signals. Verdict: Clean / Mild Slop / Heavy Slop / Pure Slop. Feed Optimization: High / Medium / Low.
-- **Evidence**: Stats without sources, causal claims without mechanisms, universals without evidence, authority without credentials. Trust Score: High / Medium / Low / Very Low.
-- **Accessibility**: Undefined acronyms, in-group assumptions, abstraction ladders. Accessibility: High / Medium / Low / Very Low.
-- **Structure**: Buried lede, thesis drift, missing transitions, section imbalance. Structure: Strong / Adequate / Weak / Broken.
-- **Tone**: Inadvertent condescension, defensive writing, performative humility, tone shifts. Gap: None / Small / Large.
-- **Originality**: Commodity takes, consensus restatements, substitutable author. Originality: High / Medium / Low / Commodity.
+For each picked axis, run the full analysis using the detection criteria and output format from that skill's SKILL.md. Read the skill file if needed — don't guess or abbreviate the criteria. Each axis should produce its standard output format, just tighter (hit highlights, skip padding).
 
 ## Output Format
 
@@ -95,3 +88,4 @@ AXES SKIPPED: <list the 3-4 axes you didn't run and one word why — e.g., "Stru
 - **Explain your routing.** The WHY line is mandatory. The user should understand your judgment.
 - **Don't duplicate findings.** If the same quote is flagged by two axes, mention it once and note it hits both.
 - **Keep it tight.** Each axis analysis should be shorter than the standalone skill output — hit the highlights, skip the padding. The report card at the end is the payoff.
+

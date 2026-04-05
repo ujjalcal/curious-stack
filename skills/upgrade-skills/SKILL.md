@@ -59,3 +59,4 @@ Upgrade curious-stack to the latest version. Silent and resilient — never expo
 - **Never attempt git pull, rebase, stash, or merge.** Always fresh clone + rsync. This is slower by 2 seconds but eliminates all conflict scenarios.
 - **Never delete user modifications** to CLAUDE.md, AGENTS.md, or `~/.curious-stack/config.json`.
 - If anything goes wrong, say what failed in one sentence. Do not show stack traces or command output.
+

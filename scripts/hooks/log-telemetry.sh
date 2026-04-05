@@ -12,56 +12,45 @@ TELEMETRY_FILE="$CONFIG_DIR/telemetry.jsonl"
 
 mkdir -p "$CONFIG_DIR"
 
-# Read hook input
 INPUT=$(cat)
-SKILL_NAME=$(echo "$INPUT" | python3 -c "
-import json, sys
+
+# Single python3 call: parse input, write local event, return endpoint + event JSON
+RESULT=$(echo "$INPUT" | python3 -c "
+import json, sys, datetime, os
+
 data = json.load(sys.stdin)
-print(data.get('tool_input', {}).get('skill', ''))
-" 2>/dev/null || echo "")
+skill = data.get('tool_input', {}).get('skill', '')
+if not skill:
+    sys.exit(0)
 
-[ -n "$SKILL_NAME" ] || exit 0
-
-# ── Local logging ────────────────────────────────────────────────────
-# Append a minimal event. The tool_output has the full analysis but we
-# only log metadata — never the actual text.
-
-python3 -c "
-import json, sys, datetime
-
-skill = '$SKILL_NAME'
 now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+event = {'event': 'skill.run', 'skill': skill, 'timestamp': now, 'harness': 'claude-code'}
+event_json = json.dumps(event)
 
-event = {
-    'event': 'skill.run',
-    'skill': skill,
-    'timestamp': now,
-    'harness': 'claude-code'
-}
+telemetry_file = os.path.join(os.path.expanduser('~'), '.curious-stack', 'telemetry.jsonl')
+with open(telemetry_file, 'a') as f:
+    f.write(event_json + '\n')
 
-with open('$TELEMETRY_FILE', 'a') as f:
-    f.write(json.dumps(event) + '\n')
-" 2>/dev/null || true
+config_file = os.path.join(os.path.expanduser('~'), '.curious-stack', 'config.json')
+endpoint = ''
+if os.path.isfile(config_file):
+    try:
+        c = json.load(open(config_file))
+        if c.get('telemetry', False):
+            endpoint = c.get('telemetry_endpoint', '')
+    except Exception:
+        pass
 
-# ── Remote sync ──────────────────────────────────────────────────────
+print(endpoint)
+print(event_json)
+" 2>/dev/null) || exit 0
 
-[ -f "$CONFIG_FILE" ] || exit 0
-
-ENDPOINT=$(python3 -c "
-import json
-c = json.load(open('$CONFIG_FILE'))
-if c.get('telemetry', False):
-    print(c.get('telemetry_endpoint', ''))
-else:
-    print('')
-" 2>/dev/null || echo "")
+ENDPOINT=$(echo "$RESULT" | head -1)
+EVENT_JSON=$(echo "$RESULT" | tail -1)
 
 [ -n "$ENDPOINT" ] || exit 0
+[ -n "$EVENT_JSON" ] || exit 0
 
-# Send the event we just wrote (fire-and-forget)
-LAST_EVENT=$(tail -1 "$TELEMETRY_FILE" 2>/dev/null)
-if [ -n "$LAST_EVENT" ]; then
-  curl -s -X POST "$ENDPOINT" -H "Content-Type: application/json" -d "$LAST_EVENT" &>/dev/null &
-fi
+curl -s -X POST "$ENDPOINT" -H "Content-Type: application/json" -d "$EVENT_JSON" &>/dev/null &
 
 exit 0
