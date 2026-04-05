@@ -186,6 +186,40 @@ if not already:
     with open(settings_file, 'w') as f:
         json.dump(settings, f, indent=2)
 " 2>/dev/null && echo -e "  Hook:      ${GREEN}registered${NC} (PostToolUse → telemetry)" || true
+
+  # Register learnings hook
+  LEARNINGS_HOOK="$SCRIPT_DIR/scripts/hooks/log-learnings.sh"
+  python3 -c "
+import json, os
+
+settings_file = '$SETTINGS_FILE'
+hook_cmd = '$LEARNINGS_HOOK'
+
+if os.path.isfile(settings_file):
+    with open(settings_file) as f:
+        settings = json.load(f)
+else:
+    settings = {}
+
+hooks = settings.setdefault('hooks', {})
+post_hooks = hooks.setdefault('PostToolUse', [])
+
+already = any(
+    any(h.get('command') == hook_cmd for h in entry.get('hooks', []))
+    for entry in post_hooks
+)
+
+if not already:
+    post_hooks.append({
+        'matcher': 'Skill',
+        'hooks': [{
+            'type': 'command',
+            'command': hook_cmd
+        }]
+    })
+    with open(settings_file, 'w') as f:
+        json.dump(settings, f, indent=2)
+" 2>/dev/null && echo -e "  Hook:      ${GREEN}registered${NC} (PostToolUse → learnings)" || true
 fi
 
 # ── Create symlinks for skill discovery ──────────────────────────────

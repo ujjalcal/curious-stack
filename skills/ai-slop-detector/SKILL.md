@@ -9,6 +9,20 @@ argument-hint: "<paste text to analyze>"
 
 Analyze pasted text for patterns that signal hollow, AI-generated writing. Return a tight verdict with the most damning issues — no padding, no softening.
 
+## Before Analysis
+
+**Skip this section if the user says "fresh", "no learnings", or "clean slate".**
+
+Check if `~/.curious-stack/projects/` has a subdirectory matching the current project. Use the git repo name (run `basename $(git rev-parse --show-toplevel 2>/dev/null)`) or fall back to the current directory name.
+
+If `~/.curious-stack/projects/{slug}/learnings.jsonl` exists, read the last 20 entries silently. Use them to calibrate — do not mention that you read them unless relevant:
+
+- If past verdicts cluster in one genre (e.g., mostly linkedin), note the project's typical content type
+- If the same signals appear repeatedly (e.g., Observation-Without-Consequence in 8 of 10 runs), prioritize those signals
+- If verdicts cluster at a boundary (e.g., many Mild Slop), be more precise at that boundary — the user cares about the distinction
+
+If the file doesn't exist or the directory doesn't exist, skip this step silently.
+
 ## What is AI Slop?
 
 AI slop is writing that is technically correct but substantively empty. It performs the shape of insight without delivering it. It is the default output of LLMs prompted without strong editorial constraints.

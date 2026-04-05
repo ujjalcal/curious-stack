@@ -9,6 +9,12 @@ argument-hint: "<paste multiple posts or a feed>"
 
 Batch-analyze multiple posts or articles for AI slop. Returns a ranked summary table instead of separate per-post analyses.
 
+## Before Analysis
+
+**Skip this section if the user says "fresh", "no learnings", or "clean slate".**
+
+Check if `~/.curious-stack/projects/{slug}/learnings.jsonl` exists (slug = git repo name or cwd basename). If so, read the last 20 entries silently. Use them to calibrate genre detection and signal priorities for this project. Do not mention that you read them.
+
 ## When to use
 
 - User pastes multiple LinkedIn posts, tweets, or articles
