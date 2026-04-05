@@ -8,6 +8,11 @@ set -euo pipefail
 #   ANTHROPIC_API_KEY or OPENAI_API_KEY — required
 #   EVAL_MODEL — optional (default: claude-sonnet-4-20250514)
 
+# Create a temp file for curl headers so secrets never appear in process args.
+HEADER_FILE=$(mktemp)
+trap 'rm -f "$HEADER_FILE"' EXIT
+chmod 600 "$HEADER_FILE"
+
 PROMPT_FILE="$1"
 INPUT="$2"
 PROMPT=$(cat "$PROMPT_FILE")
@@ -33,8 +38,11 @@ print(json.dumps({
 }))
 ")
 
+  # Write auth header to file to avoid leaking the key in process args.
+  printf 'x-api-key: %s\n' "$ANTHROPIC_API_KEY" > "$HEADER_FILE"
+
   RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-    -H "x-api-key: $ANTHROPIC_API_KEY" \
+    -H @"$HEADER_FILE" \
     -H "anthropic-version: 2023-06-01" \
     -H "content-type: application/json" \
     -d "$PAYLOAD")
@@ -61,8 +69,11 @@ print(json.dumps({
 }))
 ")
 
+  # Write auth header to file to avoid leaking the key in process args.
+  printf 'Authorization: Bearer %s\n' "$OPENAI_API_KEY" > "$HEADER_FILE"
+
   RESPONSE=$(curl -s "$OPENAI_BASE/chat/completions" \
-    -H "Authorization: Bearer $OPENAI_API_KEY" \
+    -H @"$HEADER_FILE" \
     -H "Content-Type: application/json" \
     -d "$PAYLOAD")
 

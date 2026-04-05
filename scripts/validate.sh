@@ -34,16 +34,16 @@ if [ ! -f "$REGISTRY" ]; then
   fail "registry.json not found"
 else
   # Valid JSON?
-  if python3 -c "import json; json.load(open('$REGISTRY'))" 2>/dev/null; then
+  if CS_REGISTRY="$REGISTRY" python3 -c "import json, os; json.load(open(os.environ['CS_REGISTRY']))" 2>/dev/null; then
     pass "registry.json is valid JSON"
   else
     fail "registry.json is not valid JSON"
   fi
 
   # Every skill in registry has a directory?
-  for skill_name in $(python3 -c "
-import json
-data = json.load(open('$REGISTRY'))
+  for skill_name in $(CS_REGISTRY="$REGISTRY" python3 -c "
+import json, os
+data = json.load(open(os.environ['CS_REGISTRY']))
 for s in data.get('skills', []):
     print(s['name'])
 " 2>/dev/null); do
@@ -59,10 +59,10 @@ for s in data.get('skills', []):
   for skill_dir in "$REPO_ROOT"/skills/*/; do
     [ -d "$skill_dir" ] || continue
     name=$(basename "$skill_dir")
-    if python3 -c "
-import json, sys
-data = json.load(open('$REGISTRY'))
-if not any(s['name'] == '$name' for s in data.get('skills', [])):
+    if CS_REGISTRY="$REGISTRY" CS_NAME="$name" python3 -c "
+import json, sys, os
+data = json.load(open(os.environ['CS_REGISTRY']))
+if not any(s['name'] == os.environ['CS_NAME'] for s in data.get('skills', [])):
     sys.exit(1)
 " 2>/dev/null; then
       pass "directory '$name' is registered"
@@ -88,29 +88,29 @@ for skill_dir in "$REPO_ROOT"/skills/*/; do
   # manifest.json exists and is valid JSON?
   if [ ! -f "$manifest" ]; then
     fail "manifest.json missing"
-  elif ! python3 -c "import json; json.load(open('$manifest'))" 2>/dev/null; then
+  elif ! CS_MANIFEST="$manifest" python3 -c "import json, os; json.load(open(os.environ['CS_MANIFEST']))" 2>/dev/null; then
     fail "manifest.json is not valid JSON"
   else
     pass "manifest.json valid"
 
     # Required fields present?
-    python3 -c "
-import json, sys
-m = json.load(open('$manifest'))
+    CS_MANIFEST="$manifest" python3 -c "
+import json, sys, os
+m = json.load(open(os.environ['CS_MANIFEST']))
 required = ['name', 'version', 'description', 'author', 'harnesses', 'entry']
 missing = [f for f in required if f not in m]
 if missing:
     print('MISSING:' + ','.join(missing))
     sys.exit(1)
-" 2>/dev/null && pass "manifest has all required fields" || fail "manifest missing required fields: $(python3 -c "
-import json
-m = json.load(open('$manifest'))
+" 2>/dev/null && pass "manifest has all required fields" || fail "manifest missing required fields: $(CS_MANIFEST="$manifest" python3 -c "
+import json, os
+m = json.load(open(os.environ['CS_MANIFEST']))
 required = ['name', 'version', 'description', 'author', 'harnesses', 'entry']
 print(', '.join(f for f in required if f not in m))
 " 2>/dev/null)"
 
     # Name matches directory?
-    manifest_name=$(python3 -c "import json; print(json.load(open('$manifest'))['name'])" 2>/dev/null || echo "")
+    manifest_name=$(CS_MANIFEST="$manifest" python3 -c "import json, os; print(json.load(open(os.environ['CS_MANIFEST']))['name'])" 2>/dev/null || echo "")
     if [ "$manifest_name" = "$name" ]; then
       pass "manifest name matches directory"
     else
@@ -118,9 +118,9 @@ print(', '.join(f for f in required if f not in m))
     fi
 
     # Version is semver?
-    if python3 -c "
-import json, re, sys
-v = json.load(open('$manifest')).get('version', '')
+    if CS_MANIFEST="$manifest" python3 -c "
+import json, re, sys, os
+v = json.load(open(os.environ['CS_MANIFEST'])).get('version', '')
 if not re.match(r'^\d+\.\d+\.\d+$', v):
     sys.exit(1)
 " 2>/dev/null; then
@@ -130,7 +130,7 @@ if not re.match(r'^\d+\.\d+\.\d+$', v):
     fi
 
     # Description under 200 chars?
-    desc_len=$(python3 -c "import json; print(len(json.load(open('$manifest')).get('description', '')))" 2>/dev/null || echo "0")
+    desc_len=$(CS_MANIFEST="$manifest" python3 -c "import json, os; print(len(json.load(open(os.environ['CS_MANIFEST'])).get('description', '')))" 2>/dev/null || echo "0")
     if [ "$desc_len" -le 200 ]; then
       pass "description length ok ($desc_len chars)"
     else
@@ -184,7 +184,7 @@ if not re.match(r'^\d+\.\d+\.\d+$', v):
     # Frontmatter name matches manifest name?
     if [ -f "$manifest" ]; then
       fm_name=$(head -20 "$prompt" | grep '^name:' | head -1 | sed 's/^name:[[:space:]]*//')
-      mf_name=$(python3 -c "import json; print(json.load(open('$manifest'))['name'])" 2>/dev/null || echo "")
+      mf_name=$(CS_MANIFEST="$manifest" python3 -c "import json, os; print(json.load(open(os.environ['CS_MANIFEST']))['name'])" 2>/dev/null || echo "")
       if [ -n "$fm_name" ] && [ -n "$mf_name" ]; then
         if [ "$fm_name" = "$mf_name" ]; then
           pass "SKILL.md frontmatter name matches manifest"
@@ -195,7 +195,7 @@ if not re.match(r'^\d+\.\d+\.\d+$', v):
 
       # Frontmatter description matches manifest description?
       fm_desc=$(head -20 "$prompt" | grep '^description:' | head -1 | sed 's/^description:[[:space:]]*//')
-      mf_desc=$(python3 -c "import json; print(json.load(open('$manifest'))['description'])" 2>/dev/null || echo "")
+      mf_desc=$(CS_MANIFEST="$manifest" python3 -c "import json, os; print(json.load(open(os.environ['CS_MANIFEST']))['description'])" 2>/dev/null || echo "")
       if [ -n "$fm_desc" ] && [ -n "$mf_desc" ]; then
         if [ "$fm_desc" = "$mf_desc" ]; then
           pass "SKILL.md frontmatter description matches manifest"
@@ -232,11 +232,11 @@ if not re.match(r'^\d+\.\d+\.\d+$', v):
 
   # Manifest description matches registry description?
   if [ -f "$manifest" ] && [ -f "$REGISTRY" ]; then
-    mf_desc=$(python3 -c "import json; print(json.load(open('$manifest'))['description'])" 2>/dev/null || echo "")
-    reg_desc=$(python3 -c "
-import json
-data = json.load(open('$REGISTRY'))
-s = next((x for x in data.get('skills', []) if x['name'] == '$name'), None)
+    mf_desc=$(CS_MANIFEST="$manifest" python3 -c "import json, os; print(json.load(open(os.environ['CS_MANIFEST']))['description'])" 2>/dev/null || echo "")
+    reg_desc=$(CS_REGISTRY="$REGISTRY" CS_NAME="$name" python3 -c "
+import json, os
+data = json.load(open(os.environ['CS_REGISTRY']))
+s = next((x for x in data.get('skills', []) if x['name'] == os.environ['CS_NAME']), None)
 print(s['description'] if s else '')
 " 2>/dev/null || echo "")
     if [ -n "$mf_desc" ] && [ -n "$reg_desc" ]; then
@@ -250,14 +250,14 @@ print(s['description'] if s else '')
 
   # Pipe contract valid?
   if [ -f "$manifest" ]; then
-    pipe_source=$(python3 -c "import json; print(json.load(open('$manifest')).get('pipe_from', ''))" 2>/dev/null || echo "")
+    pipe_source=$(CS_MANIFEST="$manifest" python3 -c "import json, os; print(json.load(open(os.environ['CS_MANIFEST'])).get('pipe_from', ''))" 2>/dev/null || echo "")
     if [ -n "$pipe_source" ]; then
       source_dir="$REPO_ROOT/skills/$pipe_source"
       if [ -d "$source_dir" ]; then
         pass "pipe_from '$pipe_source' exists"
         # Check source has output_schema
         if [ -f "$source_dir/manifest.json" ]; then
-          has_schema=$(python3 -c "import json; print('yes' if json.load(open('$source_dir/manifest.json')).get('output_schema') else 'no')" 2>/dev/null || echo "no")
+          has_schema=$(CS_SOURCE_MANIFEST="$source_dir/manifest.json" python3 -c "import json, os; print('yes' if json.load(open(os.environ['CS_SOURCE_MANIFEST'])).get('output_schema') else 'no')" 2>/dev/null || echo "no")
           if [ "$has_schema" = "yes" ]; then
             pass "pipe source '$pipe_source' has output_schema"
           else

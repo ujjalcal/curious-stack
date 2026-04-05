@@ -152,16 +152,16 @@ search_skills() {
   local registry
   registry=$(fetch_registry)
 
-  echo "$registry" | python3 -c "
-import json, sys
-query = '$query'.lower()
+  echo "$registry" | CS_QUERY="$query" python3 -c "
+import json, sys, os
+query = os.environ['CS_QUERY'].lower()
 data = json.load(sys.stdin)
 matches = [s for s in data['skills']
            if query in s['name'].lower()
            or query in s['description'].lower()
            or query in ' '.join(s.get('tags', [])).lower()]
 if not matches:
-    print('No skills found matching: $query')
+    print('No skills found matching: ' + os.environ['CS_QUERY'])
     sys.exit(0)
 print(f'Found {len(matches)} skill(s):')
 print()
@@ -178,9 +178,9 @@ show_info() {
   local registry
   registry=$(fetch_registry)
 
-  echo "$registry" | python3 -c "
-import json, sys
-name = '$skill_name'
+  echo "$registry" | CS_SKILL_NAME="$skill_name" python3 -c "
+import json, sys, os
+name = os.environ['CS_SKILL_NAME']
 data = json.load(sys.stdin)
 skill = next((s for s in data['skills'] if s['name'] == name), None)
 if not skill:
@@ -223,8 +223,8 @@ installed_skills() {
 
     if [ -f "$skill_dir/manifest.json" ]; then
       local version description
-      version=$(python3 -c "import json; print(json.load(open('$skill_dir/manifest.json'))['version'])" 2>/dev/null || echo "?")
-      description=$(python3 -c "import json; print(json.load(open('$skill_dir/manifest.json'))['description'])" 2>/dev/null || echo "")
+      version=$(CS_MANIFEST="$skill_dir/manifest.json" python3 -c "import json, os; print(json.load(open(os.environ['CS_MANIFEST']))['version'])" 2>/dev/null || echo "?")
+      description=$(CS_MANIFEST="$skill_dir/manifest.json" python3 -c "import json, os; print(json.load(open(os.environ['CS_MANIFEST']))['description'])" 2>/dev/null || echo "")
       echo -e "  ${BOLD}$name${NC} v$version"
       echo "    $description"
       echo "    Location: $skill_dir"
@@ -264,10 +264,10 @@ upgrade_skills() {
   echo ""
 
   local new_skills
-  new_skills=$(echo "$registry" | python3 -c "
+  new_skills=$(echo "$registry" | CS_INSTALL_DIR="$install_dir" python3 -c "
 import json, sys, os
 data = json.load(sys.stdin)
-install_dir = '$install_dir'
+install_dir = os.environ['CS_INSTALL_DIR']
 for s in data['skills']:
     dest = os.path.join(install_dir, s['name'])
     if not os.path.isdir(dest):
@@ -278,10 +278,10 @@ for s in data['skills']:
     echo -e "  ${BLUE}New skills available:${NC}"
     while IFS= read -r skill; do
       local desc
-      desc=$(echo "$registry" | python3 -c "
-import json, sys
+      desc=$(echo "$registry" | CS_SKILL="$skill" python3 -c "
+import json, sys, os
 data = json.load(sys.stdin)
-s = next((x for x in data['skills'] if x['name'] == '$skill'), None)
+s = next((x for x in data['skills'] if x['name'] == os.environ['CS_SKILL']), None)
 print(s['description'] if s else '')
 " 2>/dev/null || echo "")
       echo -e "    ${GREEN}+${NC} ${BOLD}$skill${NC} — $desc"
@@ -307,14 +307,14 @@ print(s['description'] if s else '')
 
     local installed_ver="0.0.0"
     if [ -f "$skill_dir/manifest.json" ]; then
-      installed_ver=$(python3 -c "import json; print(json.load(open('$skill_dir/manifest.json')).get('version', '0.0.0'))" 2>/dev/null || echo "0.0.0")
+      installed_ver=$(CS_MANIFEST="$skill_dir/manifest.json" python3 -c "import json, os; print(json.load(open(os.environ['CS_MANIFEST'])).get('version', '0.0.0'))" 2>/dev/null || echo "0.0.0")
     fi
 
     local registry_ver
-    registry_ver=$(echo "$registry" | python3 -c "
-import json, sys
+    registry_ver=$(echo "$registry" | CS_NAME="$name" python3 -c "
+import json, sys, os
 data = json.load(sys.stdin)
-s = next((x for x in data['skills'] if x['name'] == '$name'), None)
+s = next((x for x in data['skills'] if x['name'] == os.environ['CS_NAME']), None)
 print(s['version'] if s else 'NOT_FOUND')
 " 2>/dev/null || echo "NOT_FOUND")
 
@@ -324,12 +324,13 @@ print(s['version'] if s else 'NOT_FOUND')
     fi
 
     local needs_update
-    needs_update=$(python3 -c "
+    needs_update=$(CS_REGISTRY_VER="$registry_ver" CS_INSTALLED_VER="$installed_ver" python3 -c "
+import os
 from packaging.version import Version
 try:
-    print('yes' if Version('$registry_ver') > Version('$installed_ver') else 'no')
+    print('yes' if Version(os.environ['CS_REGISTRY_VER']) > Version(os.environ['CS_INSTALLED_VER']) else 'no')
 except:
-    print('yes' if '$registry_ver' != '$installed_ver' else 'no')
+    print('yes' if os.environ['CS_REGISTRY_VER'] != os.environ['CS_INSTALLED_VER'] else 'no')
 " 2>/dev/null || echo "$([ "$registry_ver" != "$installed_ver" ] && echo yes || echo no)")
 
     if [ "$needs_update" = "yes" ]; then
@@ -370,10 +371,10 @@ install_skill() {
   registry=$(fetch_registry)
 
   local skill_path
-  skill_path=$(echo "$registry" | python3 -c "
-import json, sys
+  skill_path=$(echo "$registry" | CS_SKILL_NAME="$skill_name" python3 -c "
+import json, sys, os
 data = json.load(sys.stdin)
-skill = next((s for s in data['skills'] if s['name'] == '$skill_name'), None)
+skill = next((s for s in data['skills'] if s['name'] == os.environ['CS_SKILL_NAME']), None)
 if not skill:
     print('NOT_FOUND')
 else:
@@ -529,6 +530,10 @@ while [ $# -gt 0 ]; do
       exit 0
       ;;
     --search|-s)
+      if [[ ! "$2" =~ ^[a-zA-Z0-9\ _-]+$ ]]; then
+        err "Invalid search query: only letters, digits, spaces, hyphens, and underscores are allowed."
+        exit 1
+      fi
       search_skills "$2"
       exit 0
       ;;

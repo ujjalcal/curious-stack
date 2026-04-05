@@ -86,7 +86,7 @@ run_skill_evals() {
   # Get skill description for judge
   local skill_desc=""
   if [ -f "$manifest" ]; then
-    skill_desc=$(python3 -c "import json; print(json.load(open('$manifest')).get('description', ''))" 2>/dev/null || echo "")
+    skill_desc=$(CS_MANIFEST="$manifest" python3 -c "import json, os; print(json.load(open(os.environ['CS_MANIFEST'])).get('description', ''))" 2>/dev/null || echo "")
   fi
 
   echo ""
@@ -102,16 +102,16 @@ run_skill_evals() {
 
     # Read config
     local runs_per_case
-    runs_per_case=$(python3 -c "
-import json
-data = json.load(open('$eval_file'))
+    runs_per_case=$(CS_EVAL_FILE="$eval_file" python3 -c "
+import json, os
+data = json.load(open(os.environ['CS_EVAL_FILE']))
 print(data.get('config', {}).get('runs_per_case', 3))
 " 2>/dev/null || echo "3")
 
     local pass_threshold
-    pass_threshold=$(python3 -c "
-import json
-data = json.load(open('$eval_file'))
+    pass_threshold=$(CS_EVAL_FILE="$eval_file" python3 -c "
+import json, os
+data = json.load(open(os.environ['CS_EVAL_FILE']))
 print(data.get('config', {}).get('pass_threshold', 0.67))
 " 2>/dev/null || echo "0.67")
 
@@ -122,22 +122,22 @@ print(data.get('config', {}).get('pass_threshold', 0.67))
 
     # Get cases
     local case_count
-    case_count=$(python3 -c "
-import json
-data = json.load(open('$eval_file'))
+    case_count=$(CS_EVAL_FILE="$eval_file" python3 -c "
+import json, os
+data = json.load(open(os.environ['CS_EVAL_FILE']))
 print(len(data.get('cases', [])))
 " 2>/dev/null || echo "0")
 
     for case_idx in $(seq 0 $((case_count - 1))); do
       local case_json
-      case_json=$(python3 -c "
-import json
-data = json.load(open('$eval_file'))
-print(json.dumps(data['cases'][$case_idx]))
+      case_json=$(CS_EVAL_FILE="$eval_file" CS_CASE_IDX="$case_idx" python3 -c "
+import json, os
+data = json.load(open(os.environ['CS_EVAL_FILE']))
+print(json.dumps(data['cases'][int(os.environ['CS_CASE_IDX'])]))
 " 2>/dev/null)
 
       local case_id
-      case_id=$(echo "$case_json" | python3 -c "import json,sys; c=json.load(sys.stdin); print(c.get('id', c.get('description', 'case-$case_idx')))")
+      case_id=$(echo "$case_json" | CS_CASE_IDX="$case_idx" python3 -c "import json,sys,os; c=json.load(sys.stdin); print(c.get('id', c.get('description', 'case-' + os.environ['CS_CASE_IDX'])))")
 
       local case_input
       case_input=$(echo "$case_json" | python3 -c "import json,sys; print(json.load(sys.stdin).get('input', ''))")
@@ -193,13 +193,13 @@ print(json.dumps(data['cases'][$case_idx]))
 
       # Compute case result
       local pass_ratio
-      pass_ratio=$(python3 -c "print(round($run_passes / $run_total, 2))")
+      pass_ratio=$(CS_RUN_PASSES="$run_passes" CS_RUN_TOTAL="$run_total" python3 -c "import os; print(round(int(os.environ['CS_RUN_PASSES']) / int(os.environ['CS_RUN_TOTAL']), 2))")
 
       local case_passed
-      case_passed=$(python3 -c "print('yes' if $run_passes / $run_total >= $pass_threshold else 'no')")
+      case_passed=$(CS_RUN_PASSES="$run_passes" CS_RUN_TOTAL="$run_total" CS_PASS_THRESHOLD="$pass_threshold" python3 -c "import os; print('yes' if int(os.environ['CS_RUN_PASSES']) / int(os.environ['CS_RUN_TOTAL']) >= float(os.environ['CS_PASS_THRESHOLD']) else 'no')")
 
       local avg_score
-      avg_score=$(python3 -c "scores = [$run_scores]; print(round(sum(scores)/len(scores), 2) if scores else 0)")
+      avg_score=$(CS_RUN_SCORES="$run_scores" python3 -c "import os; scores = [float(s) for s in os.environ['CS_RUN_SCORES'].split() if s]; print(round(sum(scores)/len(scores), 2) if scores else 0)")
 
       TOTAL_CASES=$((TOTAL_CASES + 1))
 
@@ -218,17 +218,19 @@ print(json.dumps(data['cases'][$case_idx]))
       fi
 
       # Append to skill results
-      skill_results=$(echo "$skill_results" | python3 -c "
-import json, sys
+      skill_results=$(echo "$skill_results" | CS_CASE_ID="$case_id" CS_RUN_TOTAL="$run_total" CS_RUN_PASSES="$run_passes" CS_PASS_RATIO="$pass_ratio" CS_AVG_SCORE="$avg_score" CS_CASE_PASSED="$case_passed" python3 -c "
+import json, sys, os
 results = json.load(sys.stdin)
+run_total = int(os.environ['CS_RUN_TOTAL'])
+run_passes = int(os.environ['CS_RUN_PASSES'])
 results.append({
-    'case_id': '$case_id',
-    'runs': $run_total,
-    'passes': $run_passes,
-    'pass_ratio': $pass_ratio,
-    'avg_score': $avg_score,
-    'passed': '$case_passed' == 'yes',
-    'flaky': $run_passes > 0 and $run_passes < $run_total,
+    'case_id': os.environ['CS_CASE_ID'],
+    'runs': run_total,
+    'passes': run_passes,
+    'pass_ratio': float(os.environ['CS_PASS_RATIO']),
+    'avg_score': float(os.environ['CS_AVG_SCORE']),
+    'passed': os.environ['CS_CASE_PASSED'] == 'yes',
+    'flaky': run_passes > 0 and run_passes < run_total,
 })
 print(json.dumps(results))
 ")
@@ -237,13 +239,13 @@ print(json.dumps(results))
 
   # Save results
   if [ "$DRY_RUN" = "false" ] && [ "$skill_results" != "[]" ]; then
-    echo "$skill_results" | python3 -c "
-import json, sys
+    echo "$skill_results" | CS_SKILL_NAME="$skill_name" CS_RUNNER="$RUNNER" python3 -c "
+import json, sys, os
 from datetime import datetime
 results = json.load(sys.stdin)
 output = {
-    'skill': '$skill_name',
-    'runner': '$RUNNER',
+    'skill': os.environ['CS_SKILL_NAME'],
+    'runner': os.environ['CS_RUNNER'],
     'timestamp': datetime.utcnow().isoformat() + 'Z',
     'cases': results,
     'summary': {
