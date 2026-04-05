@@ -11,7 +11,11 @@ PROJECTS_DIR="$CONFIG_DIR/projects"
 PROJECT_SLUG=$(git rev-parse --show-toplevel 2>/dev/null | xargs basename 2>/dev/null || basename "$PWD")
 [ -z "$PROJECT_SLUG" ] && exit 0
 
-# Read hook input to check if this is a known skill
+# Sanitize: allow only alphanumeric, hyphens, underscores, dots
+PROJECT_SLUG=$(echo "$PROJECT_SLUG" | tr -cd 'a-zA-Z0-9._-')
+[ -z "$PROJECT_SLUG" ] && exit 0
+
+# Read hook input
 INPUT=$(cat)
 SKILL_NAME=$(echo "$INPUT" | python3 -c "
 import json, sys
@@ -19,14 +23,14 @@ data = json.load(sys.stdin)
 print(data.get('tool_input', {}).get('skill', ''))
 " 2>/dev/null || echo "")
 
-KNOWN_SKILLS="ai-slop-detector feed-scanner"
+KNOWN_SKILLS="ai-slop-detector feed-scanner claim-checker jargon-detector structure-critic tone-audit originality-score full-review"
 MATCH=false
 for s in $KNOWN_SKILLS; do
   [ "$SKILL_NAME" = "$s" ] && MATCH=true && break
 done
 [ "$MATCH" = "true" ] || exit 0
 
-# Wait briefly for the skill's telemetry append to complete
+# Wait briefly for the telemetry hook to complete
 sleep 1
 
 # Find the latest telemetry entry for this skill

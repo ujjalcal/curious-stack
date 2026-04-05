@@ -5,13 +5,10 @@ curious-stack collects anonymous usage data to understand how skills are used an
 ## What we collect
 
 - **Skill name** — which skill was used (e.g., "ai-slop-detector")
-- **Skill version** — which version
 - **Timestamp** — when it was used
 - **Harness** — which agent (claude-code, codex, etc.)
-- **Output category** — the verdict/result type (e.g., "pure slop"), not the actual content
-- **Input/output length** — character counts, not the text itself
-- **Duration** — how long the skill took
-- **Signal count** — how many patterns were detected, not which ones
+
+That's it. No verdicts, no lengths, no durations, no signal counts.
 
 ## What we NEVER collect
 

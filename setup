@@ -90,12 +90,14 @@ if [ ! -f "$CONFIG_FILE" ]; then
     fi
   fi
 
+  CS_TELEMETRY="$TELEMETRY_CHOICE" CS_HARNESS="$HARNESS" CS_ENDPOINT="$TELEMETRY_ENDPOINT" CS_CONFIG="$CONFIG_FILE" \
   python3 -c "
-import json
-config = {'telemetry': $TELEMETRY_CHOICE, 'harness': '$HARNESS'}
-if $TELEMETRY_CHOICE:
-    config['telemetry_endpoint'] = '$TELEMETRY_ENDPOINT'
-json.dump(config, open('$CONFIG_FILE','w'), indent=2)
+import json, os
+t = os.environ['CS_TELEMETRY'] == 'true'
+config = {'telemetry': t, 'harness': os.environ['CS_HARNESS']}
+if t:
+    config['telemetry_endpoint'] = os.environ['CS_ENDPOINT']
+json.dump(config, open(os.environ['CS_CONFIG'],'w'), indent=2)
 " 2>/dev/null || echo "{\"telemetry\": $TELEMETRY_CHOICE}" > "$CONFIG_FILE"
 
   if [ "$TELEMETRY_CHOICE" = "true" ]; then
@@ -106,32 +108,34 @@ json.dump(config, open('$CONFIG_FILE','w'), indent=2)
 else
   # Existing config — respect existing preference, allow overrides
   if [ "$NO_TELEMETRY" = "true" ]; then
-    python3 -c "
-import json
-c = json.load(open('$CONFIG_FILE'))
+    CS_CONFIG="$CONFIG_FILE" python3 -c "
+import json, os
+f = os.environ['CS_CONFIG']
+c = json.load(open(f))
 c['telemetry'] = False
-json.dump(c, open('$CONFIG_FILE','w'), indent=2)
+json.dump(c, open(f,'w'), indent=2)
 " 2>/dev/null
     echo -e "  Telemetry: ${YELLOW}off${NC} (disabled)"
   elif [ "$YES_TELEMETRY" = "true" ]; then
-    python3 -c "
-import json
-c = json.load(open('$CONFIG_FILE'))
+    CS_CONFIG="$CONFIG_FILE" CS_ENDPOINT="$TELEMETRY_ENDPOINT" python3 -c "
+import json, os
+f = os.environ['CS_CONFIG']
+c = json.load(open(f))
 c['telemetry'] = True
-c['telemetry_endpoint'] = '$TELEMETRY_ENDPOINT'
-json.dump(c, open('$CONFIG_FILE','w'), indent=2)
+c['telemetry_endpoint'] = os.environ['CS_ENDPOINT']
+json.dump(c, open(f,'w'), indent=2)
 " 2>/dev/null
     echo -e "  Telemetry: ${GREEN}on${NC} (enabled)"
   else
-    TELEMETRY_STATUS=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('telemetry', False))" 2>/dev/null || echo "False")
+    TELEMETRY_STATUS=$(CS_CONFIG="$CONFIG_FILE" python3 -c "import json, os; print(json.load(open(os.environ['CS_CONFIG'])).get('telemetry', False))" 2>/dev/null || echo "False")
     if [ "$TELEMETRY_STATUS" = "True" ]; then
-      # Ensure endpoint is set when telemetry is on (may have been enabled manually)
-      python3 -c "
-import json
-c = json.load(open('$CONFIG_FILE'))
+      CS_CONFIG="$CONFIG_FILE" CS_ENDPOINT="$TELEMETRY_ENDPOINT" python3 -c "
+import json, os
+f = os.environ['CS_CONFIG']
+c = json.load(open(f))
 if 'telemetry_endpoint' not in c:
-    c['telemetry_endpoint'] = '$TELEMETRY_ENDPOINT'
-    json.dump(c, open('$CONFIG_FILE','w'), indent=2)
+    c['telemetry_endpoint'] = os.environ['CS_ENDPOINT']
+    json.dump(c, open(f,'w'), indent=2)
 " 2>/dev/null || true
       echo -e "  Telemetry: ${GREEN}on${NC}"
     else
@@ -154,11 +158,11 @@ register_hook() {
   local label="$2"
   local settings_file="$3"
 
-  python3 -c "
+  CS_HOOK_CMD="$hook_cmd" CS_SETTINGS_FILE="$settings_file" python3 -c "
 import json, os
 
-settings_file = '$settings_file'
-hook_cmd = '$hook_cmd'
+settings_file = os.environ['CS_SETTINGS_FILE']
+hook_cmd = os.environ['CS_HOOK_CMD']
 
 if os.path.isfile(settings_file):
     with open(settings_file) as f:

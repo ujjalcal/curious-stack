@@ -26,6 +26,7 @@ Proactively ask about input/output formats, example files, success criteria. Don
 
 ### 2a. Pick a name
 - Follow naming conventions from the writing guide
+- **Sanitize the name**: only allow lowercase letters, numbers, and hyphens (`[a-z0-9-]`). Reject names containing `/`, `..`, spaces, or any path separator. The name becomes a directory under `skills/` — it must be a single safe path component.
 - Confirm: "I'll call this **my-skill-name** — good?"
 
 ### 2b. Write `SKILL.md`
