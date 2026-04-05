@@ -1,0 +1,14 @@
+{
+  "name": "jargon-detector",
+  "version": "1.0.0",
+  "description": "Check if a smart outsider could understand this text. Finds undefined acronyms, in-group assumptions, and abstraction without examples.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "SKILL.md",
+  "output_schema": {
+    "format": "structured",
+    "fields": ["genre", "audience", "accessibility", "hotspots", "fix"]
+  },
+  "tags": ["writing", "detection", "quality", "jargon", "accessibility"]
+}

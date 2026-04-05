@@ -1,7 +1,7 @@
 {
   "name": "curious-stack",
-  "version": "1.2.0",
-  "description": "Downloadable skills for AI coding agents",
+  "version": "2.0.0",
+  "description": "Content quality skills for AI coding agents",
   "skills": [
     {
       "name": "ai-slop-detector",
@@ -74,6 +74,51 @@
       "tags": ["meta", "testing", "quality", "eval", "auto"],
       "harnesses": ["claude-code", "codex", "generic"],
       "path": "skills/auto-eval"
+    },
+    {
+      "name": "claim-checker",
+      "version": "1.0.0",
+      "description": "Detect unsupported claims in any text. Spots stats without sources, causal claims without mechanisms, and authority assertions without credentials.",
+      "author": "ujjalcal",
+      "tags": ["writing", "detection", "quality", "claims", "trust"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/claim-checker"
+    },
+    {
+      "name": "jargon-detector",
+      "version": "1.0.0",
+      "description": "Check if a smart outsider could understand this text. Finds undefined acronyms, in-group assumptions, and abstraction without examples.",
+      "author": "ujjalcal",
+      "tags": ["writing", "detection", "quality", "jargon", "accessibility"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/jargon-detector"
+    },
+    {
+      "name": "structure-critic",
+      "version": "1.0.0",
+      "description": "Check if an argument holds together. Finds buried ledes, thesis drift, missing transitions, and section imbalance in longer writing.",
+      "author": "ujjalcal",
+      "tags": ["writing", "detection", "quality", "structure", "argument"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/structure-critic"
+    },
+    {
+      "name": "tone-audit",
+      "version": "1.0.0",
+      "description": "Find the gap between how you think you sound and how you actually sound. Detects inadvertent condescension, defensive writing, and tone shifts.",
+      "author": "ujjalcal",
+      "tags": ["writing", "detection", "quality", "tone", "communication"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/tone-audit"
+    },
+    {
+      "name": "originality-score",
+      "version": "1.0.0",
+      "description": "Check if this has been said a thousand times. Detects commodity takes, consensus restatements, and writing that adds nothing new.",
+      "author": "ujjalcal",
+      "tags": ["writing", "detection", "quality", "originality", "commodity"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/originality-score"
     }
   ]
 }

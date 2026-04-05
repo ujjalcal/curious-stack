@@ -1,0 +1,14 @@
+{
+  "name": "tone-audit",
+  "version": "1.0.0",
+  "description": "Find the gap between how you think you sound and how you actually sound. Detects inadvertent condescension, defensive writing, and tone shifts.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "SKILL.md",
+  "output_schema": {
+    "format": "structured",
+    "fields": ["genre", "intended_tone", "actual_tone", "evidence", "tone_shifts", "fix"]
+  },
+  "tags": ["writing", "detection", "quality", "tone", "communication"]
+}

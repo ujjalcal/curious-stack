@@ -235,7 +235,7 @@ esac
 mkdir -p "$SKILLS_ROOT"
 
 # User skills: installed for everyone
-USER_SKILLS="ai-slop-detector upgrade-skills"
+USER_SKILLS="ai-slop-detector claim-checker jargon-detector structure-critic tone-audit originality-score feed-scanner upgrade-skills"
 # Developer skills: only with --dev flag
 DEV_SKILLS="create-skill improve-skill eval-skill usage-dashboard auto-eval"
 

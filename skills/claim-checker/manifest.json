@@ -1,0 +1,14 @@
+{
+  "name": "claim-checker",
+  "version": "1.0.0",
+  "description": "Detect unsupported claims in any text. Spots stats without sources, causal claims without mechanisms, and authority assertions without credentials.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "SKILL.md",
+  "output_schema": {
+    "format": "structured",
+    "fields": ["genre", "claims_found", "unsupported", "trust_score"]
+  },
+  "tags": ["writing", "detection", "quality", "claims", "trust"]
+}

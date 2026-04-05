@@ -1,0 +1,14 @@
+{
+  "name": "structure-critic",
+  "version": "1.0.0",
+  "description": "Check if an argument holds together. Finds buried ledes, thesis drift, missing transitions, and section imbalance in longer writing.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "SKILL.md",
+  "output_schema": {
+    "format": "structured",
+    "fields": ["genre", "structure", "thesis", "actual_argument", "flow_breaks", "balance", "fix"]
+  },
+  "tags": ["writing", "detection", "quality", "structure", "argument"]
+}

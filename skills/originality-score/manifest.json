@@ -1,0 +1,14 @@
+{
+  "name": "originality-score",
+  "version": "1.0.0",
+  "description": "Check if this has been said a thousand times. Detects commodity takes, consensus restatements, and writing that adds nothing new.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "SKILL.md",
+  "output_schema": {
+    "format": "structured",
+    "fields": ["genre", "originality", "novel_claims", "consensus_restatements", "unique_angle", "commodity_signals", "fix"]
+  },
+  "tags": ["writing", "detection", "quality", "originality", "commodity"]
+}
