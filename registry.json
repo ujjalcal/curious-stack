@@ -119,6 +119,15 @@
       "tags": ["writing", "detection", "quality", "originality", "commodity"],
       "harnesses": ["claude-code", "codex", "generic"],
       "path": "skills/originality-score"
+    },
+    {
+      "name": "full-review",
+      "version": "1.0.0",
+      "description": "Paste text, get a focused content review. Picks the 2-3 most relevant quality axes based on what the text actually needs.",
+      "author": "ujjalcal",
+      "tags": ["writing", "detection", "quality", "review", "router"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/full-review"
     }
   ]
 }

@@ -49,6 +49,7 @@ Paste text. Get a verdict. Each skill quotes the evidence and gives one fix.
 
 | Utility | What it does |
 |-------|-------------|
+| `/full-review` | Smart router — picks the 2-3 most relevant axes, returns a combined report card. |
 | `/feed-scanner` | Batch-analyze multiple posts. Ranked verdict table. |
 | `/upgrade-skills` | Pull the latest curious-stack. |
 
@@ -67,10 +68,10 @@ files in `skills/` — the pattern becomes obvious fast.
 ## Install
 
 **Claude Code:**
-> Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.claude/skills/curious-stack && cd ~/.claude/skills/curious-stack && ./setup` then add a "curious-stack" section to CLAUDE.md listing the available skills: /ai-slop-detector, /claim-checker, /jargon-detector, /structure-critic, /tone-audit, /originality-score, /feed-scanner, /upgrade-skills
+> Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.claude/skills/curious-stack && cd ~/.claude/skills/curious-stack && ./setup` then add a "curious-stack" section to CLAUDE.md listing the available skills: /ai-slop-detector, /claim-checker, /jargon-detector, /structure-critic, /tone-audit, /originality-score, /full-review, /feed-scanner, /upgrade-skills
 
 **Codex:**
-> Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.codex/skills/curious-stack && cd ~/.codex/skills/curious-stack && ./setup --host codex` then add a "curious-stack" section to AGENTS.md listing the available skills: /ai-slop-detector, /claim-checker, /jargon-detector, /structure-critic, /tone-audit, /originality-score, /feed-scanner, /upgrade-skills
+> Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.codex/skills/curious-stack && cd ~/.codex/skills/curious-stack && ./setup --host codex` then add a "curious-stack" section to AGENTS.md listing the available skills: /ai-slop-detector, /claim-checker, /jargon-detector, /structure-critic, /tone-audit, /originality-score, /full-review, /feed-scanner, /upgrade-skills
 
 **Cursor / Windsurf / Other:**
 > Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git .curious-stack` then read the skills in `.curious-stack/skills/*/SKILL.md` and follow them when asked.

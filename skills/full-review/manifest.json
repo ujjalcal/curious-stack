@@ -1,0 +1,14 @@
+{
+  "name": "full-review",
+  "version": "1.0.0",
+  "description": "Paste text, get a focused content review. Picks the 2-3 most relevant quality axes based on what the text actually needs.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "SKILL.md",
+  "output_schema": {
+    "format": "structured",
+    "fields": ["genre", "axes_selected", "why", "report_card", "biggest_problem"]
+  },
+  "tags": ["writing", "detection", "quality", "review", "router"]
+}
