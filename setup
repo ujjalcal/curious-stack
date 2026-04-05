@@ -237,7 +237,7 @@ mkdir -p "$SKILLS_ROOT"
 # User skills: installed for everyone
 USER_SKILLS="ai-slop-detector upgrade-skills"
 # Developer skills: only with --dev flag
-DEV_SKILLS="create-skill improve-skill eval-skill usage-dashboard"
+DEV_SKILLS="create-skill improve-skill eval-skill usage-dashboard auto-eval"
 
 link_skill() {
   local skill_dir="$1"

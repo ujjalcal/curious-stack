@@ -6,5 +6,10 @@
   "license": "MIT",
   "harnesses": ["claude-code", "codex", "generic"],
   "entry": "SKILL.md",
+  "pipe_from": "ai-slop-detector",
+  "output_schema": {
+    "format": "table",
+    "fields": ["author", "genre", "verdict", "top_signal", "reason"]
+  },
   "tags": ["writing", "detection", "quality", "batch", "ai-slop"]
 }

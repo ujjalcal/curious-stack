@@ -6,5 +6,9 @@
   "license": "MIT",
   "harnesses": ["claude-code", "codex", "generic"],
   "entry": "SKILL.md",
+  "output_schema": {
+    "format": "structured",
+    "fields": ["genre", "verdict", "signals", "saving_graces", "fix"]
+  },
   "tags": ["writing", "detection", "quality", "editing", "ai-slop"]
 }

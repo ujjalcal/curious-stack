@@ -43,6 +43,7 @@ build your own.
 | `/improve-skill` | Pick a skill. Reviews usage logs and evals, suggests concrete improvements. |
 | `/eval-skill` | Pick a skill. Runs every test case, judges output (deterministic, fuzzy, LLM), reports pass/fail. |
 | `/usage-dashboard` | See how skills are being used — frequency, trends, outcome patterns. |
+| `/auto-eval` | Generate eval cases from real usage data — finds boundary verdicts and outliers. |
 
 The first two install by default. The rest install with `./setup --dev`.
 

@@ -248,6 +248,28 @@ print(s['description'] if s else '')
     fi
   fi
 
+  # Pipe contract valid?
+  if [ -f "$manifest" ]; then
+    pipe_source=$(python3 -c "import json; print(json.load(open('$manifest')).get('pipe_from', ''))" 2>/dev/null || echo "")
+    if [ -n "$pipe_source" ]; then
+      source_dir="$REPO_ROOT/skills/$pipe_source"
+      if [ -d "$source_dir" ]; then
+        pass "pipe_from '$pipe_source' exists"
+        # Check source has output_schema
+        if [ -f "$source_dir/manifest.json" ]; then
+          has_schema=$(python3 -c "import json; print('yes' if json.load(open('$source_dir/manifest.json')).get('output_schema') else 'no')" 2>/dev/null || echo "no")
+          if [ "$has_schema" = "yes" ]; then
+            pass "pipe source '$pipe_source' has output_schema"
+          else
+            warn "pipe source '$pipe_source' missing output_schema — composition may be fragile"
+          fi
+        fi
+      else
+        fail "pipe_from '$pipe_source' — skill not found at skills/$pipe_source/"
+      fi
+    fi
+  fi
+
   # Evals exist?
   if [ -d "$evals_dir" ] && [ "$(ls -A "$evals_dir" 2>/dev/null)" ]; then
     eval_count=$(find "$evals_dir" -name '*.json' -o -name '*.yaml' -o -name '*.yml' -o -name '*.md' | wc -l)

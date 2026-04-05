@@ -1,0 +1,10 @@
+{
+  "name": "auto-eval",
+  "version": "1.0.0",
+  "description": "Generate eval cases from real usage data. Reads telemetry and learnings to find boundary verdicts, re-runs, and outliers — then drafts test cases.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "SKILL.md",
+  "tags": ["meta", "testing", "quality", "eval", "auto"]
+}

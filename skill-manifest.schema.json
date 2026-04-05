@@ -57,6 +57,26 @@
       "items": { "type": "string" },
       "description": "Other skills this depends on"
     },
+    "output_schema": {
+      "type": "object",
+      "description": "Declares the skill's output structure for composition",
+      "properties": {
+        "format": {
+          "enum": ["structured", "freeform", "table"],
+          "description": "Output format type"
+        },
+        "fields": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Named fields in the output (e.g., genre, verdict, signals)"
+        }
+      }
+    },
+    "pipe_from": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Run this skill's output through another skill first. The agent runs the source skill, then processes its output."
+    },
     "config": {
       "type": "object",
       "description": "User-configurable options with defaults",
