@@ -1,24 +1,26 @@
 # curious-stack
 
 ```
-/ai-slop-detector
+/llm-ready
 ```
 
-Paste any LinkedIn post, PR description, or technical doc. Get this back:
+Paste any blog post, article, or landing page. Get this back:
 
 ```
-VERDICT: Pure Slop
+TOPIC: AI agent architecture
+AI VISIBILITY: Low
 
-TOP ISSUES:
-1. Hollow opener — "In a world where AI is reshaping everything..."
-   says nothing. Signals the agent wrote the first sentence.
-2. Observation-Without-Consequence — "Organizations that adapt will
-   thrive" — adapt how? thrive how? Consequence never lands.
-3. Synthetic specificity — "40% productivity gains" with no methodology,
-   no timeframe, no source. Numbers as decoration.
+REPLACEABILITY: High — an LLM can generate this answer without you
+CITABILITY: 1 quotable claim out of 6 total
+SIGNAL DENSITY: Low — 800 words for one insight buried in paragraph 5
+EXTRACTABILITY: Hard — no clear answer to pull
+AUTHORITY: Derivative — summarizes others' work, no first-hand data
 
-ONE FIX: Delete the first paragraph. Start with your second concrete
-example and work backwards to the argument.
+WHY AN LLM WOULD SKIP THIS:
+It can generate the same content without citing you.
+
+ONE FIX: Add your actual deployment data from the Q3 pilot.
+An LLM can't fabricate your numbers — that's citable.
 ```
 
 Four seconds. That's what a skill does.
@@ -88,7 +90,7 @@ Nothing is sent anywhere except your AI provider's API — which is already
 part of your setup.
 
 Anonymous telemetry is **opt-in** (off by default). Setup asks on first run.
-Collects only: skill name, verdict category, input length. Never the actual text.
+Collects only: skill name, timestamp, harness type. Never the actual text.
 
 Disable anytime: `./setup --no-telemetry`
 
