@@ -146,6 +146,7 @@ This is not part of the slop verdict. A Clean post can have High feed optimizati
 Detect the genre first. It changes the scoring:
 
 - **linkedin**: Hard slop threshold is lower — the genre is already compressed, so a single hollow opener or "What do you think?" closer is more damning than in long-form.
+- **linkedin — milestones**: Job announcements, promotions, certifications, and personal milestones get a lower bar. "I'm excited to share" is template language, but it's the genre — like "Dear" on a letter. Only flag if the post tries to extract a lesson or thought leadership from the milestone. A simple celebration with real details (company, role, who helped) is not slop — it's just a caption. Score these leniently.
 - **technical**: Weight buzzword density and passive observation voice more heavily. Watch for "leverage," "robust," "seamless" sneaking into API docs or architecture write-ups.
 - **marketing**: Weight engagement-bait CTAs and synthetic specificity more heavily. Product announcements that read like LinkedIn posts are marketing slop.
 - **political**: Note when text is outside primary scope. Political rhetoric uses persuasion patterns that overlap with slop signals but serve a different purpose. Flag but don't overweight.
