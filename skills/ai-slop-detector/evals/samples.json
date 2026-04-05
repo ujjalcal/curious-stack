@@ -72,6 +72,50 @@
       "must_contain": ["5 Ways"],
       "output_regex": "^VERDICT:",
       "rubric": "Should identify the numbered list as vague enumeration with no concrete examples. Each item is a heading + one generic sentence. Must be Pure Slop or Heavy Slop."
+    },
+    {
+      "id": "pure-slop-fabricated-product",
+      "description": "Pure slop — fabricated product names, engagement-bait CTA, synthetic specificity",
+      "input": "Just tried OpenClaw's new AI diagnostic tool and I'm blown away. In just 3 minutes it analyzed our entire codebase and found 47 critical vulnerabilities we'd missed for months. The future of code security is here. Every engineering leader needs to check this out. Who else is using AI-powered security tools? Drop your favorites below! 👇",
+      "expected_verdict": "pure slop",
+      "verdict_tolerance": 1,
+      "expected_signals": ["Synthetic specificity", "Hollow openers", "Enumeration as substance"],
+      "signal_match_threshold": 0.3,
+      "output_regex": "^GENRE:.*\nVERDICT:",
+      "rubric": "Should flag synthetic specificity ('3 minutes', '47 critical vulnerabilities' with no methodology), engagement-bait CTA ('Drop your favorites below'), and hollow closer. Must be Pure Slop or Heavy Slop."
+    },
+    {
+      "id": "pure-slop-leadership",
+      "description": "Pure slop — observation-without-consequence, symmetrical structure, zero specifics",
+      "input": "Leadership isn't about having all the answers. It's about creating an environment where your team feels empowered to find them. The best leaders I've worked with share three traits: 1) They listen more than they speak. 2) They celebrate failure as learning. 3) They lead by example, not by decree. In a world of constant change, adaptability is the ultimate leadership skill. How are you developing your leadership style?",
+      "expected_verdict": "pure slop",
+      "verdict_tolerance": 1,
+      "expected_signals": ["Observation-Without-Consequence", "Enumeration as substance", "Hollow openers"],
+      "signal_match_threshold": 0.5,
+      "output_regex": "^GENRE:.*\nVERDICT:",
+      "rubric": "Should identify the enumeration (three traits that apply to any context), observation-without-consequence ('adaptability is the ultimate skill' — no specifics), and engagement-bait closer. No named examples, no friction, no specifics. Must be Pure Slop or Heavy Slop."
+    },
+    {
+      "id": "mild-slop-real-narrative",
+      "description": "Mild slop — real narrative with named actors but vague claims. Tests Clean/Mild boundary.",
+      "input": "Interesting development: Anthropic accidentally shipped a .map file with their Claude Code release last week. A developer on HN decompiled it and found references to internal tooling, unreleased model names, and what looks like a cost optimization pipeline. Anthropic pulled it within hours. This raises real questions about supply chain security in AI tooling — if one of the most security-conscious AI labs can ship debug artifacts to production, what does that say about the rest of the industry?",
+      "expected_verdict": "mild slop",
+      "verdict_tolerance": 1,
+      "expected_signals": ["Observation-Without-Consequence"],
+      "signal_match_threshold": 0.5,
+      "output_regex": "^GENRE:.*\nVERDICT:",
+      "rubric": "Should recognize real narrative elements (named company, specific incident, timeline) but flag the closing rhetorical question as Observation-Without-Consequence — 'what does that say about the rest of the industry?' never lands a specific implication. Should be Mild Slop or Clean."
+    },
+    {
+      "id": "mild-slop-domain-expert",
+      "description": "Mild slop — domain expert with real credibility but buzzword-heavy. Tests Mild/Heavy boundary.",
+      "input": "After 15 years building API platforms at Stripe, Twilio, and now my own startup, I've learned that the best API PMs think in developer journeys, not feature lists. Your API is a product. Your docs are the onboarding. Your error messages are customer support. The companies that understand this — Stripe, Plaid, OpenAI — win because they treat developers as users, not integrators. The API economy is transforming how we build software, and the PMs who get this will shape the next decade of platform innovation.",
+      "expected_verdict": "mild slop",
+      "verdict_tolerance": 1,
+      "expected_signals": ["Buzzword density", "Observation-Without-Consequence"],
+      "signal_match_threshold": 0.5,
+      "output_regex": "^GENRE:.*\nVERDICT:",
+      "rubric": "Should recognize domain credibility (named companies, specific role, years of experience) but flag buzzword leakage ('API economy', 'transforming', 'platform innovation') and the generic closer. The named examples are real but the argument drifts into sloganeering. Should be Mild Slop or Heavy Slop."
     }
   ]
 }

@@ -1,0 +1,10 @@
+{
+  "name": "feed-scanner",
+  "version": "1.0.0",
+  "description": "Batch-analyze multiple posts for AI slop. Paste a feed, get a ranked verdict table.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "SKILL.md",
+  "tags": ["writing", "detection", "quality", "batch", "ai-slop"]
+}

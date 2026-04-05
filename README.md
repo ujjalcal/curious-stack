@@ -36,7 +36,8 @@ build your own.
 
 | Skill | What it does |
 |-------|-------------|
-| `/ai-slop-detector` | Detects hollow AI writing — verdict, quoted evidence, one fix |
+| `/ai-slop-detector` | Detects hollow AI writing — genre, verdict, quoted evidence, one fix |
+| `/feed-scanner` | Paste multiple posts, get a ranked verdict table. Batch slop detection. |
 | `/upgrade-skills` | Pull the latest curious-stack. New skills just appear. |
 | `/create-skill` | Describe what you want. Walks you through an interview, builds the skill, manifest, and test cases. |
 | `/improve-skill` | Pick a skill. Reviews usage logs and evals, suggests concrete improvements. |

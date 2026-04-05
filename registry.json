@@ -1,12 +1,12 @@
 {
   "name": "curious-stack",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Downloadable skills for AI coding agents",
   "skills": [
     {
       "name": "ai-slop-detector",
-      "version": "1.0.0",
-      "description": "Analyze text for hollow, AI-generated writing. Returns a tight verdict with the most damning issues.",
+      "version": "1.1.0",
+      "description": "Analyze text for patterns that signal hollow, AI-generated writing. Returns a tight verdict with the most damning issues.",
       "author": "ujjalcal",
       "tags": ["writing", "detection", "quality", "editing", "ai-slop"],
       "harnesses": ["claude-code", "codex", "generic"],
@@ -56,6 +56,15 @@
       "tags": ["meta", "analytics", "dashboard", "telemetry"],
       "harnesses": ["claude-code", "codex", "generic"],
       "path": "skills/usage-dashboard"
+    },
+    {
+      "name": "feed-scanner",
+      "version": "1.0.0",
+      "description": "Batch-analyze multiple posts for AI slop. Paste a feed, get a ranked verdict table.",
+      "author": "ujjalcal",
+      "tags": ["writing", "detection", "quality", "batch", "ai-slop"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/feed-scanner"
     }
   ]
 }

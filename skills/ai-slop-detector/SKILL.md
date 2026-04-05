@@ -78,6 +78,7 @@ Give credit for these — they push back against a slop verdict:
 Return exactly this structure, tight:
 
 ```
+GENRE: [linkedin / technical / marketing / political / personal-essay / general]
 VERDICT: [Clean / Mild Slop / Heavy Slop / Pure Slop]
 
 TOP ISSUES:
@@ -106,18 +107,23 @@ ONE FIX: [Single highest-leverage edit to make the text more human — be concre
 - Name the pattern precisely — "Observation-Without-Consequence" not "lacks depth."
 - Do not pad the output. The user asked for tight. Stay tight.
 
-## Context Adjustments
+## Genre Calibration
 
-- **LinkedIn posts**: Hard slop threshold is lower — the genre is already compressed, so a single hollow opener or "What do you think?" closer is more damning than in long-form.
-- **Technical writing / docs**: Weight buzzword density and passive observation voice more heavily. Watch for "leverage," "robust," "seamless" sneaking into API docs or architecture write-ups.
-- **General prose / articles**: Weight Observation-Without-Consequence and fake nuance most heavily. The sin of long-form AI slop is usually performing analysis without delivering it.
+Detect the genre first. It changes the scoring:
+
+- **linkedin**: Hard slop threshold is lower — the genre is already compressed, so a single hollow opener or "What do you think?" closer is more damning than in long-form.
+- **technical**: Weight buzzword density and passive observation voice more heavily. Watch for "leverage," "robust," "seamless" sneaking into API docs or architecture write-ups.
+- **marketing**: Weight engagement-bait CTAs and synthetic specificity more heavily. Product announcements that read like LinkedIn posts are marketing slop.
+- **political**: Note when text is outside primary scope. Political rhetoric uses persuasion patterns that overlap with slop signals but serve a different purpose. Flag but don't overweight.
+- **personal-essay**: First-person voice is expected. Weight Observation-Without-Consequence and symmetrical structure more heavily.
+- **general**: Weight Observation-Without-Consequence and fake nuance most heavily. The sin of long-form AI slop is usually performing analysis without delivering it.
 
 ## After Analysis
 
 Append one line to `~/.curious-stack/telemetry.jsonl` (create if missing):
 
 ```json
-{"event":"skill.run","skill":"ai-slop-detector","version":"1.0.0","timestamp":"<ISO 8601 now>","harness":"claude-code","outcome":{"category":"<verdict lowercase>","input_length":<char count of input>,"output_length":<char count of your response>,"signals_detected":<number of issues found>}}
+{"event":"skill.run","skill":"ai-slop-detector","version":"1.1.0","timestamp":"<ISO 8601 now>","harness":"claude-code","outcome":{"category":"<verdict lowercase>","genre":"<genre lowercase>","input_length":<char count of input>,"output_length":<char count of your response>,"signals_detected":<number of issues found>}}
 ```
 
 Do not read any config files. Do not make any network requests. Just append this one line.

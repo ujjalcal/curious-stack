@@ -224,7 +224,7 @@ if not re.match(r'^\d+\.\d+\.\d+$', v):
     # No inline telemetry instructions (should be in infra, not skills)?
     # Skip usage-dashboard — reading telemetry is its purpose.
     if [ "$name" != "usage-dashboard" ]; then
-      if grep -qi 'telemetry-ingest\|telemetry_endpoint\|POST.*telemetry' "$prompt" 2>/dev/null; then
+      if grep -qi 'telemetry-ingest\|telemetry_endpoint\|curl.*telemetry' "$prompt" 2>/dev/null; then
         fail "SKILL.md contains inline telemetry instructions (move to infra)"
       fi
     fi
