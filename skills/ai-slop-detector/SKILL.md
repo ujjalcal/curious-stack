@@ -1,6 +1,6 @@
 ---
 name: ai-slop-detector
-description: Analyze text for patterns that signal hollow, AI-generated writing
+description: "Analyze text for patterns that signal hollow, AI-generated writing. Returns a tight verdict with the most damning issues."
 user-invocable: true
 argument-hint: "<paste text to analyze>"
 ---

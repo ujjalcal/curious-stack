@@ -1,6 +1,6 @@
 ---
 name: improve-skill
-description: Analyze a skill's usage and evals, suggest concrete improvements. Use when the user wants to refine, fix, or enhance an existing skill.
+description: "Analyze a skill's usage log and evals to suggest concrete improvements to its prompt."
 user-invocable: true
 argument-hint: "<skill-name>"
 ---

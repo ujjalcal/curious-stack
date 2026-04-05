@@ -1,6 +1,6 @@
 ---
 name: llm-ready
-description: Will AI cite your content? Checks if your writing is specific, authoritative, and unique enough for LLMs to reference — or if they'll just generate the answer themselves.
+description: "Will AI cite your content? Checks if your writing is specific, authoritative, and unique enough for LLMs to reference."
 user-invocable: true
 argument-hint: "<paste text to check>"
 ---

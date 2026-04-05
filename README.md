@@ -34,7 +34,7 @@ build your own.
 
 ## Content quality suite
 
-Seven skills. Each one encodes a different expert judgment about writing.
+Each skill encodes a different expert judgment about writing.
 
 | Skill | Question it answers |
 |-------|-------------|

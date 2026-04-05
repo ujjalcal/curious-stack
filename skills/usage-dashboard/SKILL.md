@@ -1,6 +1,6 @@
 ---
 name: usage-dashboard
-description: Show skill usage stats, trends, and insights from telemetry data
+description: "View how skills are being used — shows patterns, frequency, trends, and insights from telemetry data."
 user-invocable: true
 ---
 

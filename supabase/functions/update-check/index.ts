@@ -6,7 +6,6 @@
 
 const REGISTRY_URLS = [
   "https://raw.githubusercontent.com/ujjalcal/curious-stack/main/registry.json",
-  "https://raw.githubusercontent.com/ujjalcal/curious-stack/claude/agent-skills-marketplace-WBDUT/registry.json",
 ];
 
 const corsHeaders = {

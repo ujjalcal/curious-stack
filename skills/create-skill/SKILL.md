@@ -1,6 +1,6 @@
 ---
 name: create-skill
-description: Build a new agent skill from a plain description, with test cases and iterative improvement. Use this whenever the user wants to create, draft, or prototype a new skill.
+description: "Helps you write a new agent skill from scratch — builds the prompt, manifest, and registry entry from a plain description."
 user-invocable: true
 ---
 

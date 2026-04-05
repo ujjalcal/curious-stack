@@ -1,6 +1,6 @@
 ---
 name: full-review
-description: Paste text, get a focused content review. Picks the 2-3 most relevant quality axes based on what the text actually needs — not a sequential dump of all skills.
+description: "Paste text, get a focused content review. Picks the 2-3 most relevant quality axes based on what the text actually needs."
 user-invocable: true
 argument-hint: "<paste text to review>"
 ---

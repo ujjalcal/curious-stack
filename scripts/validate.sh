@@ -194,7 +194,7 @@ if not re.match(r'^\d+\.\d+\.\d+$', v):
       fi
 
       # Frontmatter description matches manifest description?
-      fm_desc=$(head -20 "$prompt" | grep '^description:' | head -1 | sed 's/^description:[[:space:]]*//')
+      fm_desc=$(head -20 "$prompt" | grep '^description:' | head -1 | sed 's/^description:[[:space:]]*//' | sed 's/^[\"'"'"']//' | sed 's/[\"'"'"']$//')
       mf_desc=$(CS_MANIFEST="$manifest" python3 -c "import json, os; print(json.load(open(os.environ['CS_MANIFEST']))['description'])" 2>/dev/null || echo "")
       if [ -n "$fm_desc" ] && [ -n "$mf_desc" ]; then
         if [ "$fm_desc" = "$mf_desc" ]; then

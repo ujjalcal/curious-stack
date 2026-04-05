@@ -2,8 +2,8 @@
 
 ## In Progress
 
-- Fix 12 validation warnings: description drift between SKILL.md frontmatter, manifest.json, and registry.json across 5 skills
-- Add evals (samples.json) for 5 skills missing them: create-skill, eval-skill, improve-skill, upgrade-skills, usage-dashboard
+- Fix description drift between SKILL.md frontmatter and manifest.json/registry.json across 8 skills
+- Add evals (samples.json) for skills missing them
 
 ## Planned
 

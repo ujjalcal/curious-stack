@@ -23,7 +23,7 @@ data = json.load(sys.stdin)
 print(data.get('tool_input', {}).get('skill', ''))
 " 2>/dev/null || echo "")
 
-KNOWN_SKILLS="ai-slop-detector feed-scanner claim-checker jargon-detector structure-critic tone-audit originality-score full-review"
+KNOWN_SKILLS="ai-slop-detector claim-checker jargon-detector structure-critic tone-audit originality-score llm-ready full-review feed-scanner upgrade-skills"
 MATCH=false
 for s in $KNOWN_SKILLS; do
   [ "$SKILL_NAME" = "$s" ] && MATCH=true && break

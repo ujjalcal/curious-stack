@@ -1,6 +1,6 @@
 ---
 name: eval-skill
-description: Run eval cases against a skill and report pass/fail with scores. Use when the user wants to test, evaluate, benchmark, or validate a skill's output quality.
+description: "Run evals on a skill — tests it against sample inputs, judges output quality, reports pass/fail with scores."
 user-invocable: true
 argument-hint: "<skill-name>"
 ---

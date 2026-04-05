@@ -1,6 +1,6 @@
 ---
 name: upgrade-skills
-description: Pull the latest curious-stack and show what changed
+description: "Self-updater — upgrade curious-stack to latest. Detects global vs vendored install, syncs both, shows what changed."
 user-invocable: true
 ---
 
