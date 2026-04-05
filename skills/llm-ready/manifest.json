@@ -1,0 +1,14 @@
+{
+  "name": "llm-ready",
+  "version": "1.0.0",
+  "description": "Will AI cite your content? Checks if your writing is specific, authoritative, and unique enough for LLMs to reference.",
+  "author": "ujjalcal",
+  "license": "MIT",
+  "harnesses": ["claude-code", "codex", "generic"],
+  "entry": "SKILL.md",
+  "output_schema": {
+    "format": "structured",
+    "fields": ["topic", "ai_visibility", "replaceability", "citability", "signal_density", "extractability", "authority", "clarity", "fix"]
+  },
+  "tags": ["writing", "detection", "quality", "seo", "llm", "ai-visibility", "content"]
+}

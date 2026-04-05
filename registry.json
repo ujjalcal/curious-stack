@@ -128,6 +128,15 @@
       "tags": ["writing", "detection", "quality", "review", "router"],
       "harnesses": ["claude-code", "codex", "generic"],
       "path": "skills/full-review"
+    },
+    {
+      "name": "llm-ready",
+      "version": "1.0.0",
+      "description": "Will AI cite your content? Checks if your writing is specific, authoritative, and unique enough for LLMs to reference.",
+      "author": "ujjalcal",
+      "tags": ["writing", "detection", "quality", "seo", "llm", "ai-visibility", "content"],
+      "harnesses": ["claude-code", "codex", "generic"],
+      "path": "skills/llm-ready"
     }
   ]
 }

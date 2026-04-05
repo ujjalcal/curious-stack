@@ -31,14 +31,16 @@ Based on the triage, pick exactly 2-3 axes from this list. Never all 6. Never ju
 | **Structure** | structure-critic | Text is 500+ words and attempts an argument or narrative. Skip for short posts. Skip for lists. |
 | **Tone** | tone-audit | Text is addressed to someone (email, feedback, announcement) or has stakes (investor update, public statement). Pick when the "how it sounds" matters as much as "what it says." |
 | **Originality** | originality-score | Text is thought leadership, opinion, or commentary. Pick for linkedin, blog posts, essays. Skip for docs, emails, announcements. |
+| **AI Visibility** | llm-ready | Text is meant to be found — blog posts, articles, landing pages, docs. Pick when discoverability matters. Skip for emails, internal docs, private comms. |
 
 ### Routing heuristics
 
 - **LinkedIn post**: Substance + Originality + (Evidence if stats present, Tone if addressed to someone)
-- **Technical blog**: Substance + Accessibility + (Structure if long)
+- **Technical blog**: Substance + Accessibility + (AI Visibility if public-facing)
 - **Essay / long-form**: Structure + Originality + Tone
 - **Email / Slack**: Tone + (Accessibility if cross-team)
-- **Marketing**: Substance + Evidence + (Accessibility if public)
+- **Marketing / landing page**: Substance + AI Visibility + (Evidence if claims present)
+- **Blog post / article**: AI Visibility + Substance + (Originality if opinion piece)
 - **Investor update**: Evidence + Accessibility + Tone
 - **Internal doc**: Accessibility + Structure
 
@@ -83,7 +85,7 @@ AXES SKIPPED: <list the 3-4 axes you didn't run and one word why — e.g., "Stru
 
 ## Rules
 
-- **Never run all 6.** If you think all 6 are needed, you're not triaging. Pick the 3 that matter most.
+- **Never run all 7.** If you think all 7 are needed, you're not triaging. Pick the 3 that matter most.
 - **Never run just 1.** That's what the individual skill commands are for. Full review means cross-cutting.
 - **Explain your routing.** The WHY line is mandatory. The user should understand your judgment.
 - **Don't duplicate findings.** If the same quote is flagged by two axes, mention it once and note it hits both.

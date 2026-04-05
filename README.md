@@ -34,10 +34,11 @@ build your own.
 
 ## Content quality suite
 
-Six skills. Each one encodes a different expert judgment about writing.
+Seven skills. Each one encodes a different expert judgment about writing.
 
 | Skill | Question it answers |
 |-------|-------------|
+| `/llm-ready` | Will AI cite this? — Checks if your content is citable by ChatGPT, Perplexity, Gemini, or invisible |
 | `/ai-slop-detector` | Is this hollow? — Detects AI-generated writing patterns |
 | `/claim-checker` | Is this backed up? — Finds stats without sources, causal claims without mechanisms |
 | `/jargon-detector` | Would an outsider understand this? — Finds undefined acronyms, in-group assumptions |
@@ -68,10 +69,10 @@ files in `skills/` — the pattern becomes obvious fast.
 ## Install
 
 **Claude Code:**
-> Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.claude/skills/curious-stack && cd ~/.claude/skills/curious-stack && ./setup` then add a "curious-stack" section to CLAUDE.md listing the available skills: /ai-slop-detector, /claim-checker, /jargon-detector, /structure-critic, /tone-audit, /originality-score, /full-review, /feed-scanner, /upgrade-skills
+> Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.claude/skills/curious-stack && cd ~/.claude/skills/curious-stack && ./setup` then add a "curious-stack" section to CLAUDE.md listing the available skills: /llm-ready, /ai-slop-detector, /claim-checker, /jargon-detector, /structure-critic, /tone-audit, /originality-score, /full-review, /feed-scanner, /upgrade-skills
 
 **Codex:**
-> Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.codex/skills/curious-stack && cd ~/.codex/skills/curious-stack && ./setup --host codex` then add a "curious-stack" section to AGENTS.md listing the available skills: /ai-slop-detector, /claim-checker, /jargon-detector, /structure-critic, /tone-audit, /originality-score, /full-review, /feed-scanner, /upgrade-skills
+> Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git ~/.codex/skills/curious-stack && cd ~/.codex/skills/curious-stack && ./setup --host codex` then add a "curious-stack" section to AGENTS.md listing the available skills: /llm-ready, /ai-slop-detector, /claim-checker, /jargon-detector, /structure-critic, /tone-audit, /originality-score, /full-review, /feed-scanner, /upgrade-skills
 
 **Cursor / Windsurf / Other:**
 > Install curious-stack: run `git clone --depth 1 https://github.com/ujjalcal/curious-stack.git .curious-stack` then read the skills in `.curious-stack/skills/*/SKILL.md` and follow them when asked.
