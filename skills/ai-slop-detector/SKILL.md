@@ -29,11 +29,11 @@ AI slop is writing that is technically correct but substantively empty. It perfo
 
 ## Detection Signal Categories
 
-Evaluate text across these dimensions. Weight them by severity.
+Evaluate text across these dimensions. Each signal has a point weight.
 
-### Hard Slop Signals (most damning)
+### Hard Slop Signals (+3 points each)
 
-**Hollow openers / closers**
+**Hollow openers / closers** (+3)
 - "In today's fast-paced world..."
 - "It's no secret that..."
 - "At the end of the day..."
@@ -41,78 +41,104 @@ Evaluate text across these dimensions. Weight them by severity.
 - Ending with "What do you think?" or "I'd love to hear your thoughts."
 - Inspirational closer that doesn't follow from the content
 
-**The Observation-Without-Consequence pattern**
+**The Observation-Without-Consequence pattern** (+3)
 - States a fact or observation but never lands a specific implication
 - Example: "AI is transforming the mortgage industry." (Full stop. No how, no so what)
 
-**False tension / fake nuance**
+**False tension / fake nuance** (+3)
 - "While X is important, we must not forget Y" — where X and Y are both obviously true
 - "It's not just about A, it's about B" — where no one was arguing it was only A
 
-**Enumeration as substance**
+**Enumeration as substance** (+3)
 - Numbered lists that could apply to any topic (e.g., "5 Ways AI Will Change [Industry]")
 - Each item is a heading + one vague sentence with no concrete example
 
-**Hedge stacking**
+**Hedge stacking** (+3)
 - "Perhaps," "potentially," "in many ways," "it could be argued" — multiple hedges in one paragraph with no actual claim landing
 
-### Soft Slop Signals (meaningful but not disqualifying alone)
+### Soft Slop Signals (+1 point each)
 
-**Buzzword density**
+**Buzzword density** (+1)
 - "Transformative," "game-changer," "unlock," "leverage," "empower," "ecosystem," "seamless," "cutting-edge," "robust," "scalable" — especially when clustered
 
-**The Royal "We" without referent**
+**The Royal "We" without referent** (+1)
 - "We are entering a new era..." — who is we?
 
-**Synthetic specificity**
+**Synthetic specificity** (+1)
 - Precise-sounding stats or numbers with no source ("Studies show 73% of organizations...")
 - Specific-sounding examples that are obviously generic
 
-**Passive observation voice**
+**Passive observation voice** (+1)
 - Everything described from 30,000 feet; no first-person perspective or lived experience
 - No friction, no surprise, no moment where the author changed their mind
 
-**Symmetrical paragraph structure**
+**Symmetrical paragraph structure** (+1)
 - Every paragraph is exactly: topic sentence → elaboration → example → mini-conclusion
 - Feels like a template was filled in
 
-### Counter-signals (marks of authentic writing)
+### Counter-signals (-2 points each)
 
-Give credit for these — they push back against a slop verdict:
+These push the score down — they're evidence of authentic writing:
 
-- Specific named examples (real people, real products, real decisions)
-- A claim that someone could actually disagree with
-- Sentence-level compression (dense, no filler)
-- First-person friction ("I was wrong about...", "This surprised me...", "I still don't know...")
-- Domain vocabulary used precisely, not decoratively
-- An argument that builds — later sentences depend on earlier ones
+- Specific named examples (real people, real products, real decisions) (-2)
+- A claim that someone could actually disagree with (-2)
+- Sentence-level compression (dense, no filler) (-2)
+- First-person friction ("I was wrong about...", "This surprised me...", "I still don't know...") (-2)
+- Domain vocabulary used precisely, not decoratively (-2)
+- An argument that builds — later sentences depend on earlier ones (-2)
+
+## Scoring
+
+Count each detected signal exactly once. Apply the weights. Sum to get the **SLOP SCORE**.
+
+Minimum score is 0 (floor — don't go negative).
+
+### Verdict Thresholds
+
+| Score | Verdict | Meaning |
+|---|---|---|
+| 0–2 | **Clean** | Minimal signals, strong counter-signals. Reads like a person wrote it. |
+| 3–5 | **Mild Slop** | A few patterns, fixable with one editing pass. |
+| 6–9 | **Heavy Slop** | Multiple hard signals or signal stacking. Substantial rewrite needed. |
+| 10+ | **Pure Slop** | Hard signals everywhere, no counter-signals. Could be prompt-generated. |
+
+### Genre Adjustments
+
+After computing the raw score, apply a genre adjustment:
+
+- **linkedin — milestones**: -3 points. Job announcements, promotions, certifications get leniency. Template language is the genre. Only flag if the post extracts thought leadership from the milestone.
+- **technical — earnest tone**: -2 points. Clear, direct technical explanation is not slop. A post that explains a concept without hype or engagement tricks should not be penalized for lacking "friction." Technical clarity is its own counter-signal.
+- **political**: -1 point. Persuasion patterns overlap with slop signals but serve a different purpose.
 
 ## Output Format
 
 Return exactly this structure, tight:
 
 ```
-GENRE: [linkedin / technical / marketing / political / personal-essay / general]
+GENRE: [linkedin / linkedin-milestone / technical / marketing / political / personal-essay / general]
+SLOP SCORE: [number] ([N hard × 3] + [N soft × 1] - [N counter × 2], genre adj: [+/- N])
 VERDICT: [Clean / Mild Slop / Heavy Slop / Pure Slop]
 
+SIGNALS DETECTED:
+  Hard: [list signal names, or "none"]
+  Soft: [list signal names, or "none"]
+  Counter: [list counter-signal names, or "none"]
+
 TOP ISSUES:
-1. [Specific pattern name] — [One quoted phrase from the text that exemplifies it]
-2. [Specific pattern name] — [One quoted phrase from the text that exemplifies it]
-3. [Specific pattern name] — [One quoted phrase from the text that exemplifies it, if applicable]
+1. [Specific pattern name] (+N) — [One quoted phrase from the text that exemplifies it]
+2. [Specific pattern name] (+N) — [One quoted phrase from the text that exemplifies it]
+3. [Specific pattern name] (+N) — [One quoted phrase from the text that exemplifies it, if applicable]
 
 SAVING GRACES: [One sentence on what the text does well, or "None detected."]
 
 ONE FIX: [Single highest-leverage edit to make the text more human — be concrete, not generic]
+
+FEED OPTIMIZATION: [High / Medium / Low]
 ```
 
-### Verdict Calibration
+### Signal Density
 
-| Label | Meaning |
-|---|---|
-| **Clean** | ≤1 soft signal, no hard signals. Reads like a person wrote it. |
-| **Mild Slop** | 1–2 soft signals or 1 hard signal. Fixable with a pass. |
-| **Heavy Slop** | 2+ hard signals or buzzword-saturated. Substantial rewrite needed. |
-| **Pure Slop** | Multiple hard signals, no counter-signals. Could have been generated by pressing "write a LinkedIn post about X." |
+After the score line, the SIGNALS DETECTED section shows exactly what was counted. This is the uncertainty signal — if only one soft signal fired on a borderline score, the reader knows the verdict is thin. If four hard signals fired, the verdict is solid.
 
 ## Tone of Analysis
 
@@ -129,26 +155,21 @@ If you're comparing two texts in the same session, apply the same rubric to both
 
 ## Feed Optimization
 
-After the main verdict, add one line:
-
-```
-FEED OPTIMIZATION: [High / Medium / Low]
-```
-
 - **High**: Structure is algorithmically optimized — bullet lists, rhetorical closing questions, both-sides framing, scannable visual breaks. Will perform well in feeds regardless of substance.
 - **Medium**: Some feed-friendly patterns but not fully optimized.
 - **Low**: No feed optimization. May underperform algorithmically but that's not a quality judgment.
 
-This is not part of the slop verdict. A Clean post can have High feed optimization. A Pure Slop post can have Low. They're independent axes. The point: help the user see *why* sloppy posts often outperform good ones.
+This is not part of the slop verdict. A Clean post can have High feed optimization. A Pure Slop post can have Low. They're independent axes.
 
 ## Genre Calibration
 
 Detect the genre first. It changes the scoring:
 
 - **linkedin**: Hard slop threshold is lower — the genre is already compressed, so a single hollow opener or "What do you think?" closer is more damning than in long-form.
-- **linkedin — milestones**: Job announcements, promotions, certifications, and personal milestones get a lower bar. "I'm excited to share" is template language, but it's the genre — like "Dear" on a letter. Only flag if the post tries to extract a lesson or thought leadership from the milestone. A simple celebration with real details (company, role, who helped) is not slop — it's just a caption. Score these leniently.
+- **linkedin — milestones**: Job announcements, promotions, certifications, and personal milestones get a -3 genre adjustment. "I'm excited to share" is template language, but it's the genre. Only flag if the post tries to extract thought leadership from the milestone.
 - **technical**: Weight buzzword density and passive observation voice more heavily. Watch for "leverage," "robust," "seamless" sneaking into API docs or architecture write-ups.
+- **technical — earnest tone**: Clear, direct technical explanation is not slop. Gets a -2 genre adjustment. A post that explains a concept without hype, self-promotion, or engagement tricks should not be penalized for lacking "friction" or "first-person moments." Technical clarity is its own counter-signal.
 - **marketing**: Weight engagement-bait CTAs and synthetic specificity more heavily. Product announcements that read like LinkedIn posts are marketing slop.
-- **political**: Note when text is outside primary scope. Political rhetoric uses persuasion patterns that overlap with slop signals but serve a different purpose. Flag but don't overweight.
+- **political**: Persuasion patterns overlap with slop signals but serve a different purpose. Gets a -1 genre adjustment.
 - **personal-essay**: First-person voice is expected. Weight Observation-Without-Consequence and symmetrical structure more heavily.
 - **general**: Weight Observation-Without-Consequence and fake nuance most heavily. The sin of long-form AI slop is usually performing analysis without delivering it.
